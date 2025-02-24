@@ -9,9 +9,7 @@ const Header = () => {
   const [isMenu, setIsMenu] = useState(false);
 
   return (
-    // Added 'relative' to ensure the dropdown menu stays within the header
-    <div className="bg-white shadow-lg h-16 flex justify-between items-center md:px-[10%] relative"> 
-      
+    <div className="bg-white shadow-lg h-16 flex justify-between items-center md:px-[10%] relative">
       {/* Logo */}
       <Link
         href="/"
@@ -21,31 +19,29 @@ const Header = () => {
       </Link>
 
       {/* Toggle Menu Button */}
-      {/* Added 'cursor-pointer' to improve UX */}
       <div
         className="md:hidden flex flex-col gap-1 pr-5 cursor-pointer"
-        onClick={() => setIsMenu(!isMenu)}
+        onClick={() => setIsMenu((prev) => !prev)}
       >
-        <div className="w-5 h-0.5 bg-black"></div>
-        <div className="w-5 h-0.5 bg-black"></div>
-        <div className="w-5 h-0.5 bg-black"></div>
+        <div className="w-6 h-0.5 bg-black"></div>
+        <div className="w-6 h-0.5 bg-black"></div>
+        <div className="w-6 h-0.5 bg-black"></div>
       </div>
 
       {/* Navbar Links */}
-      {/* Updated this div to handle the menu toggle properly */}
       <div
         className={`${
           isMenu ? "flex" : "hidden"
-        } flex-col absolute top-16 left-0 w-full bg-white shadow-md md:shadow-none md:flex md:flex-row md:static md:w-auto text-center`}
+        } flex-col absolute top-16 left-0 w-full bg-white shadow-lg md:shadow-none md:flex md:flex-row md:static md:w-auto text-center transition-all duration-300 ease-in-out z-50`}
       >
         {links?.map((link) => (
-          <div key={link.link} className="py-2 md:py-0">
+          <div key={link.link} className="py-3 md:py-0">
             <Link
               className={`block px-5 py-2 ${
                 pathname === link.link ? "text-third-color font-bold" : "text-gray-800"
               }`}
               href={link.link}
-              onClick={() => setIsMenu(false)} // Added this to close the menu when a link is clicked
+              onClick={() => setIsMenu(false)} // Closes menu on link click
             >
               <span>{link.text}</span>
             </Link>
