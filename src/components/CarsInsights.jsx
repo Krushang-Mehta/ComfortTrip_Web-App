@@ -4,6 +4,7 @@ import { staggerContainer } from '@/Nav-Contants/motion';
 import styles from '@/Nav-Contants/styles';
 import { motion } from 'framer-motion';
 import React from 'react';
+import Image from "next/image";
 import TitleText from './TitleText';
 import { Insights } from '@/Nav-Contants/app_data-links';
 import InsightCard from './InsightCard.jsx';
@@ -25,7 +26,7 @@ const CarsInsights = ({ isForm }) => {
             className="flex flex-col items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-lg"
           >
             {/* Image Section */}
-            <img
+            <Image
               src={insight.imgUrl}
               alt={insight.title}
               className="w-full h-[300px] object-cover rounded-md"
