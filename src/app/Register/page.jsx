@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import { useState } from "react";
 
 const Register = () => {
@@ -141,7 +143,7 @@ const Register = () => {
         </div>
         {/* Right Section */}
         <div className="w-1/2 bg-purple-300 flex items-center justify-center">
-          <img
+          <Image
             src="/Car-Banner-3-1.png" // Replace with an actual illustration
             alt="Illustration"
             className="w-2/3"
