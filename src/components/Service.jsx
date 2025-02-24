@@ -1,6 +1,7 @@
 "use client";  // Client-side rendering required for framer-motion
 
 import React from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { staggerContainer } from "@/Nav-Contants/motion";
 import TitleText from "./TitleText";
@@ -22,7 +23,7 @@ const Service = ({ service }) => {
         </p> */}
       </div>
       <div className="w-full">
-        <img
+        <Image
           src={service?.img}
           alt={service?.title}
           className="w-60 h-50 object-cover items-center"
