@@ -79,7 +79,7 @@ export const profile = [
 export const exploreWorlds = [
     {
       id: "world-1",
-      imgUrl: "/proffesniol-drive.png",
+      imgUrl: "/Proffesniol-drive.png",
       title: "Professniols and Experienced Drivers",
       description: " We provide well trained and experienced professniols Drivers .From Unmatched Luxury to Spacious Comfort: Trip Awaits Your Selection!",
     },
