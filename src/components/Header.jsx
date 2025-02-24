@@ -5,7 +5,7 @@ import { links } from "@/Nav-Contants/app_data-links";
 import { usePathname } from "next/navigation";
 
 const Header = () => {
-    const pathname = usePathname()
+    const pathname = usePathname();
     
     // Toggle Menu statement
     
