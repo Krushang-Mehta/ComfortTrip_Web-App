@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from "next/image";
 import TitleText from './TitleText';
 import { homeCards } from '@/Nav-Contants/app_data-links';
 
@@ -23,7 +24,7 @@ const OurObjective = () => {
               className="rounded shadow-lg bg-white w-full max-w-sm mx-auto"
             >
               <div className="w-full relative">
-                <img
+                <Image
                   src={car.img}
                   alt="img"
                   className="w-full h-48 object-cover"
