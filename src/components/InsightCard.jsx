@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from "next/image";
 import { motion } from 'framer-motion';
 import { fadeIn } from '@/Nav-Contants/motion';
 
@@ -9,7 +10,7 @@ const InsightCard = ({ imgUrl, title, subtitle, index, price, capacity, isForm }
       className="flex flex-col md:flex-row gap-6 items-center p-4 bg-white shadow-lg rounded-lg"
     >
       {/* Image section */}
-      <img
+      <Image
         src={imgUrl}
         className="w-full md:w-[350px] h-[250px] rounded-lg object-cover"
         alt={title}
