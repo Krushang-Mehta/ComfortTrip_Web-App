@@ -4,7 +4,7 @@ import Link from "next/link";
 import { links } from "@/Nav-Contants/app_data-links";
 import { usePathname } from "next/navigation";
 
-const header = () => {
+const Header = () => {
     const pathname = usePathname()
     
     // Toggle Menu statement
@@ -49,4 +49,4 @@ const header = () => {
   );
 };
 
-export default header;
+export default Header;
