@@ -8,11 +8,11 @@ import CarsInsights from "@/components/CarsInsights";
 
 export default function Home() {
   return ( 
-  <div className="">
+  <div className="relative w-full overflow-x-hidden">
     <Carousels />
      
      {/* Explore Page  */}
-    <div className="relative">
+    <div className="relative w-full">
       <Explore />
       <Subfooter />
       <CarsInsights />
