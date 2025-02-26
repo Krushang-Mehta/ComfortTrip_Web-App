@@ -20,7 +20,7 @@ const Footer = () => {
             <div className="text-gray-600 mb-4">
                Shyamnagar 1,<br />
                Gandhigram , <br />
-               Ramdevpir Chowk ,Ramdevpir Chowk , <br />
+               Ramdevpir Chowk ,150 Ft Ring Road, <br />
                Rajkot:- 360007.
              </div>
             <div className="text-gray-600 flex flex-col gap-2">
