@@ -70,7 +70,8 @@ const Footer = () => {
 
       {/* Footer Bottom Section */}
       <div className="mt-10 text-center text-gray-600 text-sm">
-        2025 &copy; Designed & Developed by  <a href="#">Krushang Mehta</a>
+         &copy; 2025
+        Designed & Developed by  <a href="#">Krushang Mehta</a>
       </div>
     </footer>
   );
