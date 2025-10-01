@@ -71,7 +71,7 @@ const Footer = () => {
       {/* Footer Bottom Section */}
       <div className="mt-10 text-center text-gray-600 text-sm">
          &copy; 2025
-        Designed & Developed by  <a href=https:"https://krushang-portfolio-website.vercel.app" target="_blank" rel="noopener noreferrer">Krushang Mehta</a>
+        Designed & Developed by  <a href="https://krushang-portfolio-website.vercel.app" target="_blank" rel="noopener noreferrer">Krushang Mehta</a>
       </div>
     </footer>
   );
