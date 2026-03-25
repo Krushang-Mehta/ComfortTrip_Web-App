@@ -25,7 +25,7 @@ const Footer = () => {
              </div>
             <div className="text-gray-600 flex flex-col gap-2">
               <div className="flex items-center gap-2">
-                <a href="tel"+919974833330"><FontAwesomeIcon icon={faWhatsapp} className="text-gray-700" />
+                <a href="tel:+919974833330"><FontAwesomeIcon icon={faWhatsapp} className="text-gray-700" />
                 +91 9974833330</a>
               </div>
               <div className="flex items-center gap-2">
