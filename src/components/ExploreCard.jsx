@@ -10,7 +10,7 @@ const ExploreCard = ({ world }) => {
     {/* Style for card Photos. */}
 
     <div className="mx-auto w-32 h-32 relative -mt-[85px] border-4 border-white rounded-full overflow-hidden">
-        <Image src={world.imgUrl} alt="" className="object-cover object-center" width={32} height={32}/>
+        <Image src={world.imgUrl} alt="" className="object-cover object-center h-32"/>
     </div>
 
     {/* Styles for title & description of card.  */}
