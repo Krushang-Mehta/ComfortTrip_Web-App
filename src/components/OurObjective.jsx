@@ -26,7 +26,9 @@ const OurObjective = () => {
               <div className="w-full relative">
                 <Image
                   src={car.img}
-                  alt="img"
+                  alt={car.title || "Our Objective"}
+                  width={400}
+                  height={192}
                   className="w-full h-48 object-cover"
                 />
               </div>

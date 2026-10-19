@@ -22,10 +22,12 @@ const Service = ({ service }) => {
           {service?.text || "Experience the best travel services with us."}
         </p> */}
       </div>
-      <div className="w-full">
+      <div className="w-full flex justify-center">
         <Image
           src={service?.img}
-          alt={service?.title}
+          alt={service?.title || "Service"}
+          width={240}
+          height={200}
           className="w-60 h-50 object-cover items-center"
         />
       </div>

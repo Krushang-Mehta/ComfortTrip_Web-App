@@ -12,6 +12,8 @@ const InsightCard = ({ imgUrl, title, subtitle, index, price, capacity, isForm }
       {/* Image section */}
       <Image
         src={imgUrl}
+        width={350}
+        height={250}
         className="w-full md:w-[350px] h-[250px] rounded-lg object-cover"
         alt={title}
       />

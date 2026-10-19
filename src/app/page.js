@@ -3,8 +3,28 @@ import Explore from "@/components/Explore";
 import OurObjective from "@/components/OurObjective";
 import Subfooter from "@/components/Subfooter";
 import Footer from "@/components/Footer";
-import Image from "next/image";
 import CarsInsights from "@/components/CarsInsights";
+
+export const metadata = {
+  title: "Comfort Trip — Best Car Rentals & Taxi Service in Rajkot",
+  description:
+    "Book affordable car rentals and taxi services in Rajkot with Comfort Trip. Best rates on outstation cabs to Somnath, Dwarka, and Gir, plus 24x7 Hirasar Airport transfers.",
+  keywords: [
+    "Comfort Trip",
+    "Car Rental Rajkot",
+    "Best Car Rentals in Rajkot",
+    "Taxi Service in Rajkot",
+    "Car Tentals Rajkot",
+    "Car Bookings Rajkot",
+    "The Comfort trip",
+    "Affordable car Rentals in Rajkot",
+    "Rajkot Taxi Service",
+    "Car Hire Rajkot",
+  ],
+  alternates: {
+    canonical: "/",
+  },
+};
 
 export default function Home() {
   return ( 

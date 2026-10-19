@@ -30,6 +30,8 @@ const CarsInsights = ({ isForm }) => {
             <Image
               src={insight.imgUrl}
               alt={insight.title}
+              width={400}
+              height={300}
               className="w-full h-[300px] object-cover rounded-md"
             />
 
