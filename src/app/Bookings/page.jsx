@@ -18,6 +18,7 @@ import {
   Plane,
   Clock,
   ShieldAlert,
+  X,
 } from "lucide-react";
 import AuthModal from "@/components/common/AuthModal";
 import CustomDatePicker from "@/components/common/CustomDatePicker";
@@ -346,12 +347,22 @@ export default function BookingsWizard() {
 
         {/* Error Alert */}
         {error && (
-          <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2.5 text-rose-800 text-xs">
-            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <p className="font-semibold text-rose-900">Attention Required:</p>
-              <p className="mt-0.5 text-rose-700">{error}</p>
+          <div className="fixed bottom-4 left-4 right-4 sm:static sm:mb-4 sm:left-auto sm:right-auto z-50 p-3.5 bg-rose-600 text-white rounded-2xl shadow-2xl shadow-rose-600/30 border border-rose-500 flex items-center justify-between gap-3 text-xs animate-in slide-in-from-bottom-4 duration-200">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <AlertCircle className="w-5 h-5 text-white shrink-0" />
+              <div className="min-w-0">
+                <p className="font-bold text-white text-xs">Input Required</p>
+                <p className="text-rose-100 text-[11px] truncate">{error}</p>
+              </div>
             </div>
+            <button
+              type="button"
+              onClick={() => setError("")}
+              className="p-1 rounded-full text-white/80 hover:text-white hover:bg-white/20 transition cursor-pointer shrink-0"
+              aria-label="Dismiss alert"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
         )}
 
