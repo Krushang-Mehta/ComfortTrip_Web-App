@@ -16,7 +16,9 @@ import {
   EyeOff,
   Check,
   X,
+  Calendar,
 } from "lucide-react";
+import CustomDatePicker from "@/components/common/CustomDatePicker";
 
 const Register = () => {
   const router = useRouter();
@@ -25,6 +27,7 @@ const Register = () => {
     lastName: "",
     contact: "",
     email: "",
+    dob: "",
     password: "",
     confirmPassword: "",
   });
@@ -204,7 +207,7 @@ const Register = () => {
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
-                  placeholder="e.g. Rahul"
+                  placeholder="Enter your first name"
                   className={`w-full pl-9 pr-3 py-2 bg-slate-50/50 border rounded-xl text-main-color text-sm focus:outline-none focus:ring-2 transition-all ${
                     fieldErrors.firstName
                       ? "border-rose-400 focus:ring-rose-200 bg-rose-50/30"
@@ -231,7 +234,7 @@ const Register = () => {
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
-                  placeholder="e.g. Sharma"
+                  placeholder="Enter your last name"
                   className={`w-full pl-9 pr-3 py-2 bg-slate-50/50 border rounded-xl text-main-color text-sm focus:outline-none focus:ring-2 transition-all ${
                     fieldErrors.lastName
                       ? "border-rose-400 focus:ring-rose-200 bg-rose-50/30"
@@ -246,34 +249,49 @@ const Register = () => {
             </div>
           </div>
 
-          {/* Contact Number */}
-          <div>
-            <label className="block text-main-color text-xs font-semibold uppercase tracking-wider mb-1.5">
-              Contact Number
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                <Phone className="w-4 h-4" />
+          {/* Contact Number & Date of Birth Row */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div>
+              <label className="block text-main-color text-xs font-semibold uppercase tracking-wider mb-1.5">
+                Contact Number
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                  <Phone className="w-4 h-4" />
+                </div>
+                <input
+                  type="tel"
+                  name="contact"
+                  value={formData.contact}
+                  onChange={handleChange}
+                  placeholder="Enter your phone number"
+                  className={`w-full pl-10 pr-4 py-2 bg-slate-50/50 border rounded-xl text-main-color text-sm focus:outline-none focus:ring-2 transition-all ${
+                    fieldErrors.phone || fieldErrors.contact
+                      ? "border-rose-400 focus:ring-rose-200 bg-rose-50/30"
+                      : "border-slate-200 focus:ring-third-color/30 focus:border-third-color"
+                  }`}
+                  required
+                />
               </div>
-              <input
-                type="tel"
-                name="contact"
-                value={formData.contact}
-                onChange={handleChange}
-                placeholder="9876543210"
-                className={`w-full pl-10 pr-4 py-2.5 bg-slate-50/50 border rounded-xl text-main-color text-sm focus:outline-none focus:ring-2 transition-all ${
-                  fieldErrors.phone || fieldErrors.contact
-                    ? "border-rose-400 focus:ring-rose-200 bg-rose-50/30"
-                    : "border-slate-200 focus:ring-third-color/30 focus:border-third-color"
-                }`}
-                required
+              {(fieldErrors.phone || fieldErrors.contact) && (
+                <p className="text-[11px] text-rose-600 mt-1 font-medium">
+                  {fieldErrors.phone || fieldErrors.contact}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-main-color text-xs font-semibold uppercase tracking-wider mb-1.5">
+                Date of Birth (DOB)
+              </label>
+              <CustomDatePicker
+                value={formData.dob}
+                onChange={(val) => setFormData((prev) => ({ ...prev, dob: val }))}
+                placeholder="Select date of birth"
+                isDob={true}
+                disablePast={false}
               />
             </div>
-            {(fieldErrors.phone || fieldErrors.contact) && (
-              <p className="text-[11px] text-rose-600 mt-1 font-medium">
-                {fieldErrors.phone || fieldErrors.contact}
-              </p>
-            )}
           </div>
 
           {/* Email Address */}
@@ -290,7 +308,7 @@ const Register = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="name@example.com"
+                placeholder="Enter your email address"
                 className={`w-full pl-10 pr-4 py-2.5 bg-slate-50/50 border rounded-xl text-main-color text-sm focus:outline-none focus:ring-2 transition-all ${
                   fieldErrors.email
                     ? "border-rose-400 focus:ring-rose-200 bg-rose-50/30"
@@ -319,7 +337,7 @@ const Register = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder="e.g. Abcd@1234"
+                  placeholder="Enter your password"
                   className={`w-full pl-9 pr-9 py-2 bg-slate-50/50 border rounded-xl text-main-color text-sm focus:outline-none focus:ring-2 transition-all ${
                     fieldErrors.password
                       ? "border-rose-400 focus:ring-rose-200 bg-rose-50/30"
@@ -353,7 +371,7 @@ const Register = () => {
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  placeholder="Re-type password"
+                  placeholder="Re-enter your password"
                   className={`w-full pl-9 pr-3 py-2 bg-slate-50/50 border rounded-xl text-main-color text-sm focus:outline-none focus:ring-2 transition-all ${
                     fieldErrors.confirmPassword
                       ? "border-rose-400 focus:ring-rose-200 bg-rose-50/30"

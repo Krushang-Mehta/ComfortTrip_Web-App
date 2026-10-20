@@ -4,6 +4,7 @@ import OurObjective from "@/components/OurObjective";
 import Subfooter from "@/components/Subfooter";
 import Footer from "@/components/Footer";
 import CarsInsights from "@/components/CarsInsights";
+import BookingCtaBanner from "@/components/common/BookingCtaBanner";
 
 export const metadata = {
   title: "Comfort Trip — Best Car Rentals & Taxi Service in Rajkot",
@@ -34,8 +35,9 @@ export default function Home() {
      {/* Explore Page  */}
     <div className="relative w-full">
       <Explore />
-      <Subfooter />
       <CarsInsights />
+      <BookingCtaBanner />
+      <Subfooter />
       <OurObjective />
       <Footer />
     </div>

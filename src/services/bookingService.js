@@ -70,9 +70,16 @@ export async function createBookingService(rawData, session) {
     throw new Error('CAR_NOT_AVAILABLE');
   }
 
-  // Calculate fare estimate: base day rate + distance allowance
-  const baseRate = Number(car.pricePerDay) || 2000;
-  const estimatedAmount = Math.max(baseRate, 1500);
+  // Calculate fare estimate based on Gujarat rental standard: (Car rate/km * 350 km/day * days)
+  const ratePerKm = Number(car.pricePerKm) || 12;
+  let tripDays = 1;
+  if (validated.returnDateTime && validated.pickupDateTime) {
+    const diffMs = new Date(validated.returnDateTime) - new Date(validated.pickupDateTime);
+    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    tripDays = Math.max(1, diffDays);
+  }
+  const baseEstimatedAmount = ratePerKm * 350 * tripDays;
+  const estimatedAmount = Math.max(baseEstimatedAmount, Number(car.pricePerDay) || 2000);
 
   const booking = await createBooking({
     user: session.user.id,

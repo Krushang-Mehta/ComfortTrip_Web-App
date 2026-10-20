@@ -2,6 +2,7 @@ import Banners from '@/components/Banners';
 import CarsInsights from '@/components/CarsInsights';
 import Footer from '@/components/Footer';
 import OurObjective from "@/components/OurObjective";
+import BookingCtaBanner from "@/components/common/BookingCtaBanner";
 import React from 'react';
 
 export const metadata = {
@@ -32,26 +33,27 @@ export const metadata = {
 };
 
 const Cars = () => {
-  return <div>
-    <Banners
-      img="/About-banner.png"
-      title="Multiple Options"
-      text="We provide varity of Vehicles on rent."
-    />
-    {/* Cars Page form code. */}
-    <div className="relative">
-      <CarsInsights isForm={false} />
-
-
-      <div className="mt-10">
-        <OurObjective />
-        <Footer />
+  return (
+    <div>
+      <Banners
+        img="/About-banner.png"
+        title="Multiple Options"
+        text="Clean, well-maintained vehicles with experienced local chauffeurs for outstation and local trips across Gujarat."
+      />
+      <div className="relative">
+        <CarsInsights isForm={false} showHeader={false} />
+        <BookingCtaBanner
+          title="Found the Perfect Vehicle for Your Journey?"
+          subtitle="Reserve in just 3 simple steps with verified chauffeur dispatch and transparent per-km billing."
+          primaryCtaText="Book Your Vehicle Now"
+        />
+        <div className="mt-6">
+          <OurObjective />
+          <Footer />
+        </div>
       </div>
-
-
     </div>
-  </div>
-
-}
+  );
+};
 
 export default Cars;

@@ -140,7 +140,7 @@ function LoginForm() {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="name@example.com"
+                placeholder="Enter your email address"
                 className="w-full pl-10 pr-4 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-main-color text-sm focus:outline-none focus:ring-2 focus:ring-third-color/30 focus:border-third-color transition-all"
                 required
               />
@@ -168,7 +168,7 @@ function LoginForm() {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                placeholder="••••••••"
+                placeholder="Enter your password"
                 className="w-full pl-10 pr-10 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-main-color text-sm focus:outline-none focus:ring-2 focus:ring-third-color/30 focus:border-third-color transition-all"
                 required
               />
