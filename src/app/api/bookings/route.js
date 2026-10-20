@@ -24,15 +24,16 @@ export async function GET(request) {
     if (isAdmin) {
       const { searchParams } = new URL(request.url);
       const status = searchParams.get('status') || '';
+      const search = searchParams.get('search') || '';
       const page = parseInt(searchParams.get('page') || '1', 10);
       const limit = parseInt(searchParams.get('limit') || '20', 10);
 
-      const filter = {};
-      if (status && status !== 'All') {
-        filter.status = status;
-      }
-
-      const result = await findAllBookingsAdmin(filter, { page, limit });
+      const result = await findAllBookingsAdmin({
+        page,
+        limit,
+        status: status === 'All' ? '' : status,
+        search,
+      });
       return NextResponse.json({ success: true, ...result });
     }
 

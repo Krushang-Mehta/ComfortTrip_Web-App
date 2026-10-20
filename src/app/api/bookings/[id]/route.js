@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db/mongodb';
 import { getSession } from '@/lib/auth/getCurrentUser';
 import { findBookingById, findBookingByBookingId } from '@/repositories/bookingRepository';
-import { updateBookingStatusService } from '@/services/bookingService';
+import { updateBookingStatusService, assignDriverService } from '@/services/bookingService';
 import { formatErrorResponse } from '@/lib/utils/formatApiError';
 
 export async function GET(request, { params }) {
@@ -62,7 +62,13 @@ export async function PATCH(request, { params }) {
     const body = await request.json();
     await connectToDatabase();
 
-    const updated = await updateBookingStatusService(id, body, session);
+    let updated;
+    if (body.driverId) {
+      updated = await assignDriverService(id, body, session);
+    } else {
+      updated = await updateBookingStatusService(id, body, session);
+    }
+
     return NextResponse.json({ success: true, booking: updated });
   } catch (error) {
     console.error('[/api/bookings/[id] PATCH Error]', error);
