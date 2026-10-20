@@ -133,9 +133,9 @@ export default function CustomDatePicker({
         )}
       </div>
 
-      {/* Popover Calendar Container */}
+      {/* Popover Calendar Container with Purple Shadow Accent */}
       {isOpen && (
-        <div className="absolute top-full left-0 mt-1.5 z-40 w-full min-w-[280px] max-w-[340px] bg-white rounded-2xl shadow-xl border border-purple-100 p-3.5 animate-in fade-in zoom-in-95 duration-150">
+        <div className="absolute top-full left-0 mt-2 z-50 w-full min-w-[280px] max-w-[340px] bg-white rounded-2xl shadow-2xl shadow-purple-600/20 border-2 border-purple-100 p-3.5 animate-in fade-in zoom-in-95 duration-150">
           {/* Calendar Header with Month/Year Navigation */}
           <div className="flex items-center justify-between mb-3 px-1">
             <button

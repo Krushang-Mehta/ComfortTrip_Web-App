@@ -22,6 +22,7 @@ import {
 import AuthModal from "@/components/common/AuthModal";
 import CustomDatePicker from "@/components/common/CustomDatePicker";
 import TimeslotPicker from "@/components/common/TimeslotPicker";
+import CustomDropdown from "@/components/common/CustomDropdown";
 
 const tripTypes = [
   { id: "Outstation-Round", label: "Round Trip", icon: Compass, desc: "Pilgrimage & Multi-day tours" },
@@ -29,6 +30,13 @@ const tripTypes = [
   { id: "Airport", label: "Airport Transfer", icon: Plane, desc: "Rajkot Airport (HCS)" },
   { id: "Local", label: "Local City Rental", icon: Clock, desc: "Hourly shopping & meetings" },
 ];
+
+const tripTypeOptions = tripTypes.map((t) => ({
+  value: t.id,
+  label: t.label,
+  subtitle: t.desc,
+  icon: t.icon,
+}));
 
 const rajkotLandmarks = [
   "Rajkot International Airport (HCS)",
@@ -365,25 +373,13 @@ export default function BookingsWizard() {
               <label className="block text-xs font-semibold uppercase tracking-wider text-main-color mb-1">
                 Select Trip Style
               </label>
-              <div className="relative">
-                <select
-                  name="tripType"
-                  value={formData.tripType}
-                  onChange={handleInputChange}
-                  className="w-full pl-3.5 pr-8 py-2.5 bg-purple-50/40 border border-purple-200 rounded-xl text-sm font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-600/30 focus:border-purple-600 cursor-pointer appearance-none transition"
-                >
-                  {tripTypes.map((t) => (
-                    <option key={t.id} value={t.id} className="text-gray-800 font-medium">
-                      {t.label} — {t.desc}
-                    </option>
-                  ))}
-                </select>
-                <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-purple-600">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
+              <CustomDropdown
+                value={formData.tripType}
+                onChange={(val) => setFormData((p) => ({ ...p, tripType: val }))}
+                options={tripTypeOptions}
+                placeholder="Select Trip Style"
+                maxHeight="max-h-60"
+              />
             </div>
 
             {/* Pickup & Destination Inputs with Action-Oriented Placeholders */}
@@ -509,27 +505,91 @@ export default function BookingsWizard() {
               </div>
             )}
 
-            {/* Passengers Selector */}
+            {/* Number of Passengers Stepper Counter */}
             <div className="mb-6">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-main-color mb-1">
-                Number of Passengers
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-purple-600">
-                  <Users className="w-4 h-4" />
-                </div>
-                <select
-                  name="passengers"
-                  value={formData.passengers}
-                  onChange={handleInputChange}
-                  className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-600/30 focus:border-purple-600"
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-main-color">
+                  Number of Passengers
+                </label>
+                <span className="text-[11px] text-purple-700 font-semibold bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200">
+                  {passengerCount <= 4
+                    ? "Sedan / Compact"
+                    : passengerCount <= 7
+                    ? "SUV (Spacious)"
+                    : "Tempo Traveller (Group)"}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2.5">
+                {/* Decrement Button */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFormData((p) => ({
+                      ...p,
+                      passengers: Math.max(1, (Number(p.passengers) || 1) - 1),
+                    }))
+                  }
+                  disabled={passengerCount <= 1}
+                  className="w-11 h-11 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 disabled:opacity-40 disabled:cursor-not-allowed border border-purple-200 flex items-center justify-center font-bold text-lg transition shadow-sm cursor-pointer shrink-0"
+                  aria-label="Decrease passenger count"
                 >
-                  {Array.from({ length: 16 }, (_, i) => i + 1).map((num) => (
-                    <option key={num} value={num}>
-                      {num} {num === 1 ? "Passenger (Solo)" : num <= 4 ? "Passengers (Sedan / Compact)" : num <= 7 ? "Passengers (SUV)" : "Passengers (Tempo Traveller)"}
-                    </option>
-                  ))}
-                </select>
+                  -
+                </button>
+
+                {/* Number Input / Display */}
+                <div className="relative flex-1">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-purple-600">
+                    <Users className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="number"
+                    min="1"
+                    max="20"
+                    name="passengers"
+                    value={formData.passengers}
+                    onChange={(e) => {
+                      const val = Math.max(1, Math.min(20, Number(e.target.value) || 1));
+                      setFormData((p) => ({ ...p, passengers: val }));
+                    }}
+                    className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 focus:border-purple-600 focus:ring-2 focus:ring-purple-100 rounded-xl text-center text-base font-extrabold text-main-color transition shadow-sm"
+                  />
+                </div>
+
+                {/* Increment Button */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFormData((p) => ({
+                      ...p,
+                      passengers: Math.min(20, (Number(p.passengers) || 1) + 1),
+                    }))
+                  }
+                  disabled={passengerCount >= 20}
+                  className="w-11 h-11 rounded-xl bg-purple-600 hover:bg-purple-700 text-white disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center font-bold text-lg transition shadow-md shadow-purple-600/25 cursor-pointer shrink-0"
+                  aria-label="Increase passenger count"
+                >
+                  +
+                </button>
+              </div>
+
+              {/* Quick Selection Pills */}
+              <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                <span className="text-[11px] text-gray-400 mr-1">Quick select:</span>
+                {[1, 2, 4, 6, 7, 12, 16].map((count) => (
+                  <button
+                    key={count}
+                    type="button"
+                    onClick={() => setFormData((p) => ({ ...p, passengers: count }))}
+                    className={`px-2.5 py-0.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                      passengerCount === count
+                        ? "bg-purple-600 text-white shadow-sm shadow-purple-600/30"
+                        : "bg-slate-100 text-slate-700 hover:bg-purple-100 hover:text-purple-700"
+                    }`}
+                  >
+                    {count} Pax
+                  </button>
+                ))}
               </div>
             </div>
 
