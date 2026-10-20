@@ -153,7 +153,8 @@ export async function updateBookingStatusService(id, rawData, session) {
   const updatedBooking = await updateBookingStatus(
     id,
     validated.status,
-    validated.adminNotes
+    validated.adminNotes,
+    validated.totalEstimatedAmount
   );
 
   if (!updatedBooking) {

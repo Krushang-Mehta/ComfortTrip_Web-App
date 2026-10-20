@@ -18,8 +18,36 @@ import {
   Gauge,
   IndianRupee,
 } from "lucide-react";
+import CustomDropdown from "@/components/common/CustomDropdown";
+import { CardGridSkeleton } from "@/components/admin/AdminSkeleton";
 
 const categories = ["All", "Sedan", "SUV", "Luxury", "Tempo Traveller", "Hatchback"];
+
+const categoryOptions = [
+  { value: "Sedan", label: "Sedan", subtitle: "Comfortable 4-seater" },
+  { value: "SUV", label: "SUV", subtitle: "Spacious 6-7 seater" },
+  { value: "Luxury", label: "Luxury", subtitle: "Executive VIP travel" },
+  { value: "Tempo Traveller", label: "Tempo Traveller", subtitle: "Group & family tours" },
+  { value: "Hatchback", label: "Hatchback", subtitle: "Compact city rides" },
+];
+
+const fuelOptions = [
+  { value: "Diesel", label: "Diesel", subtitle: "High efficiency & torque" },
+  { value: "Petrol", label: "Petrol", subtitle: "Smooth quiet ride" },
+  { value: "CNG", label: "CNG", subtitle: "Eco-friendly economical" },
+  { value: "Electric", label: "Electric", subtitle: "Zero emissions" },
+];
+
+const transmissionOptions = [
+  { value: "Manual", label: "Manual", subtitle: "Standard transmission" },
+  { value: "Automatic", label: "Automatic", subtitle: "Effortless automatic drive" },
+];
+
+const statusOptions = [
+  { value: "available", label: "Available", subtitle: "Ready for live customer dispatch" },
+  { value: "booked", label: "Booked", subtitle: "Currently reserved on journey" },
+  { value: "maintenance", label: "Maintenance", subtitle: "Under routine workshop service" },
+];
 
 export default function AdminFleetManager() {
   const [cars, setCars] = useState([]);
@@ -294,10 +322,7 @@ export default function AdminFleetManager() {
 
       {/* Fleet Grid */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 text-slate-400 bg-white rounded-2xl border border-slate-200">
-          <Loader2 className="w-8 h-8 animate-spin text-purple-600 mb-2" />
-          <p className="text-xs font-semibold">Loading fleet inventory...</p>
-        </div>
+        <CardGridSkeleton count={6} />
       ) : cars.length === 0 ? (
         <div className="text-center py-20 text-slate-400 bg-white rounded-2xl border border-slate-200">
           <Car className="w-10 h-10 mx-auto mb-2 text-slate-300" />
@@ -462,20 +487,15 @@ export default function AdminFleetManager() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
-                <div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="relative z-30">
                   <label className="block text-xs font-semibold text-slate-700 mb-1">Category</label>
-                  <select
+                  <CustomDropdown
                     value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-purple-600 focus:bg-white transition"
-                  >
-                    <option value="Sedan">Sedan</option>
-                    <option value="SUV">SUV</option>
-                    <option value="Luxury">Luxury</option>
-                    <option value="Tempo Traveller">Tempo Traveller</option>
-                    <option value="Hatchback">Hatchback</option>
-                  </select>
+                    onChange={(val) => setFormData({ ...formData, category: val })}
+                    options={categoryOptions}
+                    placeholder="Category"
+                  />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">Seats</label>
@@ -489,32 +509,26 @@ export default function AdminFleetManager() {
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-purple-600 focus:bg-white transition"
                   />
                 </div>
-                <div>
+                <div className="relative z-30">
                   <label className="block text-xs font-semibold text-slate-700 mb-1">Fuel</label>
-                  <select
+                  <CustomDropdown
                     value={formData.fuelType}
-                    onChange={(e) => setFormData({ ...formData, fuelType: e.target.value })}
-                    className="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-purple-600 focus:bg-white transition"
-                  >
-                    <option value="Diesel">Diesel</option>
-                    <option value="Petrol">Petrol</option>
-                    <option value="CNG">CNG</option>
-                    <option value="Electric">Electric</option>
-                  </select>
+                    onChange={(val) => setFormData({ ...formData, fuelType: val })}
+                    options={fuelOptions}
+                    placeholder="Fuel"
+                  />
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
-                <div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="relative z-20">
                   <label className="block text-xs font-semibold text-slate-700 mb-1">Transmission</label>
-                  <select
+                  <CustomDropdown
                     value={formData.transmission}
-                    onChange={(e) => setFormData({ ...formData, transmission: e.target.value })}
-                    className="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-purple-600 focus:bg-white transition"
-                  >
-                    <option value="Manual">Manual</option>
-                    <option value="Automatic">Automatic</option>
-                  </select>
+                    onChange={(val) => setFormData({ ...formData, transmission: val })}
+                    options={transmissionOptions}
+                    placeholder="Transmission"
+                  />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">Rate / Km (₹)</label>
@@ -562,17 +576,14 @@ export default function AdminFleetManager() {
                 />
               </div>
 
-              <div>
+              <div className="relative z-10">
                 <label className="block text-xs font-semibold text-slate-700 mb-1">Status</label>
-                <select
+                <CustomDropdown
                   value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-purple-600 focus:bg-white transition"
-                >
-                  <option value="available">Available</option>
-                  <option value="booked">Booked</option>
-                  <option value="maintenance">Maintenance</option>
-                </select>
+                  onChange={(val) => setFormData({ ...formData, status: val })}
+                  options={statusOptions}
+                  placeholder="Select status"
+                />
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">

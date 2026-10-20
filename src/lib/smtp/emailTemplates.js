@@ -154,3 +154,37 @@ export function tripCompletedEmailTemplate({ booking, user, rewardPointsEarned =
     content,
   });
 }
+
+/**
+ * Password reset email template with 30-minute session expiry
+ */
+export function passwordResetEmailTemplate({ name, resetUrl }) {
+  const content = `
+    <h2>Password Reset Request 🔐</h2>
+    <p>Dear ${name || 'Valued Member'},</p>
+    <p>We received a request to reset your password for your Comfort~Trip account.</p>
+
+    <div class="info-box">
+      <h3 style="margin-top:0;">⏱️ Security Notice</h3>
+      <p>This password reset session link is valid for exactly <strong style="color: #9333ea;">30 minutes</strong>. After 30 minutes, this link will automatically expire for your security.</p>
+    </div>
+
+    <div style="text-align: center; margin: 28px 0;">
+      <a href="${resetUrl}" class="button" style="background-color: #9333ea; color: #ffffff !important; padding: 14px 32px; border-radius: 10px; text-decoration: none; font-weight: bold; display: inline-block;">
+        Reset Your Password
+      </a>
+    </div>
+
+    <p style="font-size: 13px; color: #64748b;">If the button above does not work, copy and paste this link into your browser:</p>
+    <p style="font-size: 12px; word-break: break-all; color: #9333ea;"><a href="${resetUrl}" style="color: #9333ea;">${resetUrl}</a></p>
+
+    <p style="font-size: 12px; color: #94a3b8; margin-top: 24px; border-top: 1px solid #e2e8f0; pt: 16px;">
+      If you did not initiate this request, you can safely ignore this email. Your existing password will remain secure and unchanged.
+    </p>
+  `;
+
+  return baseLayout({
+    title: 'Reset Your Comfort~Trip Password (Valid for 30 Minutes)',
+    content,
+  });
+}

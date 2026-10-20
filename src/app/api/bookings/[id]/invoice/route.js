@@ -92,7 +92,7 @@ function generateInvoicePdf(booking) {
       .text('Comfort Trip Car Rentals Rajkot', 40, 68)
       .text('Ramdevpir Chowk, 150 Ft Ring Road, Gandhigram', 40, 80)
       .text('Rajkot, Gujarat - 360007 | Tel: +91 9974833330', 40, 92)
-      .text('GSTIN: 24AAACC1234F1Z5 | contact@comforttrip.in', 40, 104);
+      .text('GSTIN:           | contact@comforttrip.in', 40, 104);
 
     // Invoice Meta Right Column
     doc
@@ -190,12 +190,8 @@ function generateInvoicePdf(booking) {
       .text('Rate', 380, tableTop + 7, { bold: true })
       .text('Amount (INR)', 480, tableTop + 7, { bold: true });
 
-    // Table Content
-    const subtotal = Number(booking.totalEstimatedAmount) || 2000;
-    const baseFare = Math.round(subtotal / 1.05); // 5% GST
-    const gstTotal = subtotal - baseFare;
-    const cgst = Math.round(gstTotal / 2);
-    const sgst = gstTotal - cgst;
+    // Table Content (No GST tax amount added; GST number left blank)
+    const totalAmount = Number(booking.totalEstimatedAmount) || 2000;
 
     let y = tableTop + 32;
 
@@ -205,24 +201,17 @@ function generateInvoicePdf(booking) {
       .text(`${booking.tripType} Chauffeur Driven Rental`, 50, y)
       .text(booking.car?.category || 'Standard', 280, y)
       .text(`Base`, 380, y)
-      .text(`₹${baseFare.toLocaleString('en-IN')}`, 480, y);
+      .text(`₹${totalAmount.toLocaleString('en-IN')}`, 480, y);
 
     y += 20;
     doc.moveTo(40, y).lineTo(555, y).strokeColor('#e2e8f0').stroke();
 
     y += 10;
     doc
-      .text('Central GST (CGST - 2.5%)', 50, y)
-      .text('2.5%', 280, y)
-      .text('-', 380, y)
-      .text(`₹${cgst.toLocaleString('en-IN')}`, 480, y);
-
-    y += 18;
-    doc
-      .text('State GST (SGST - 2.5%)', 50, y)
-      .text('2.5%', 280, y)
-      .text('-', 380, y)
-      .text(`₹${sgst.toLocaleString('en-IN')}`, 480, y);
+      .text('Goods & Services Tax (GST)', 50, y)
+      .text('0%', 280, y)
+      .text('Exempt', 380, y)
+      .text('₹0', 480, y);
 
     y += 24;
     doc
@@ -235,8 +224,8 @@ function generateInvoicePdf(booking) {
     doc
       .fontSize(11)
       .fillColor(primaryColor)
-      .text('Total Paid Amount:', 50, y + 8, { bold: true })
-      .text(`₹${subtotal.toLocaleString('en-IN')}`, 470, y + 8, { bold: true });
+      .text('Total Invoice Amount:', 50, y + 8, { bold: true })
+      .text(`₹${totalAmount.toLocaleString('en-IN')}`, 470, y + 8, { bold: true });
 
     // Footer & Policies
     doc

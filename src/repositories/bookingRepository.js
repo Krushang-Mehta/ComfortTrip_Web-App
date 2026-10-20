@@ -78,12 +78,16 @@ export async function findUserBookings(userId, options = {}) {
  * @param {string} id
  * @param {string} status
  * @param {string} [adminNotes]
+ * @param {number} [totalEstimatedAmount]
  * @returns {Promise<Object|null>}
  */
-export async function updateBookingStatus(id, status, adminNotes) {
+export async function updateBookingStatus(id, status, adminNotes, totalEstimatedAmount) {
   const update = { status };
   if (typeof adminNotes === 'string') {
     update.adminNotes = adminNotes;
+  }
+  if (typeof totalEstimatedAmount === 'number' && totalEstimatedAmount > 0) {
+    update.totalEstimatedAmount = totalEstimatedAmount;
   }
 
   return await Booking.findByIdAndUpdate(

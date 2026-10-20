@@ -5,6 +5,9 @@ import { validateUserCredentials, buildSessionUser } from '@/services/authServic
 import { findUserByEmail, createUser, updateLastActive } from '@/repositories/userRepository';
 import { logActivity } from '@/lib/utils/activityLogger';
 
+const Google = typeof GoogleProvider === 'function' ? GoogleProvider : GoogleProvider?.default;
+const Credentials = typeof CredentialsProvider === 'function' ? CredentialsProvider : CredentialsProvider?.default;
+
 const providers = [];
 
 // 1. Google OAuth Provider (Configured if valid client ID & secret exist)
@@ -14,11 +17,12 @@ const isGoogleConfigured =
   googleClientId &&
   googleClientSecret &&
   !googleClientId.includes('your_google_client_id') &&
-  !googleClientSecret.includes('your_google_client_secret');
+  !googleClientSecret.includes('your_google_client_secret') &&
+  typeof Google === 'function';
 
 if (isGoogleConfigured) {
   providers.push(
-    GoogleProvider({
+    Google({
       clientId: googleClientId,
       clientSecret: googleClientSecret,
       allowDangerousEmailAccountLinking: true,
@@ -27,28 +31,30 @@ if (isGoogleConfigured) {
 }
 
 // 2. Email & Password Credentials Provider
-providers.push(
-  CredentialsProvider({
-    name: 'Credentials',
-    credentials: {
-      email: { label: 'Email', type: 'email', placeholder: 'user@example.com' },
-      password: { label: 'Password', type: 'password' },
-    },
-    async authorize(credentials) {
-      if (!credentials?.email || !credentials?.password) {
-        throw new Error('Please provide email and password');
-      }
+if (typeof Credentials === 'function') {
+  providers.push(
+    Credentials({
+      name: 'Credentials',
+      credentials: {
+        email: { label: 'Email', type: 'email', placeholder: 'user@example.com' },
+        password: { label: 'Password', type: 'password' },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error('Please provide email and password');
+        }
 
-      await connectToDatabase();
-      const user = await validateUserCredentials({
-        email: credentials.email,
-        password: credentials.password,
-      });
+        await connectToDatabase();
+        const user = await validateUserCredentials({
+          email: credentials.email,
+          password: credentials.password,
+        });
 
-      return buildSessionUser(user);
-    },
-  })
-);
+        return buildSessionUser(user);
+      },
+    })
+  );
+}
 
 export const authOptions = {
   providers,
@@ -135,6 +141,12 @@ export const authOptions = {
         session.user.rewardPoints = token.rewardPoints ?? 0;
       }
       return session;
+    },
+
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith('/')) return `${baseUrl}${url}`;
+      if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
     },
   },
 };

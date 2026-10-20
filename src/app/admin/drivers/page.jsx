@@ -14,6 +14,14 @@ import {
   Loader2,
   Car,
 } from "lucide-react";
+import CustomDropdown from "@/components/common/CustomDropdown";
+import { CardGridSkeleton } from "@/components/admin/AdminSkeleton";
+
+const driverStatusOptions = [
+  { value: "Available", label: "Available for Dispatch", subtitle: "Ready to accept ride assignments" },
+  { value: "On-Trip", label: "On-Trip", subtitle: "Currently active on road with passengers" },
+  { value: "Off-Duty", label: "Off-Duty", subtitle: "Unavailable / off roster" },
+];
 
 export default function AdminDriversRegistry() {
   const [drivers, setDrivers] = useState([]);
@@ -193,10 +201,7 @@ export default function AdminDriversRegistry() {
 
       {/* Roster Grid */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 text-slate-400 bg-white rounded-2xl border border-slate-200">
-          <Loader2 className="w-8 h-8 animate-spin text-purple-600 mb-2" />
-          <p className="text-xs font-semibold">Loading verified chauffeur roster...</p>
-        </div>
+        <CardGridSkeleton count={6} />
       ) : drivers.length === 0 ? (
         <div className="text-center py-20 text-slate-400 bg-white rounded-2xl border border-slate-200">
           <UserCheck className="w-10 h-10 mx-auto mb-2 text-slate-300" />
@@ -383,17 +388,14 @@ export default function AdminDriversRegistry() {
                 </div>
               </div>
 
-              <div>
+              <div className="relative z-10">
                 <label className="block text-xs font-semibold text-slate-700 mb-1">Initial Duty Status</label>
-                <select
+                <CustomDropdown
                   value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-purple-600 focus:bg-white transition"
-                >
-                  <option value="Available">Available for Dispatch</option>
-                  <option value="On-Trip">On-Trip</option>
-                  <option value="Off-Duty">Off-Duty</option>
-                </select>
+                  onChange={(val) => setFormData({ ...formData, status: val })}
+                  options={driverStatusOptions}
+                  placeholder="Select duty status"
+                />
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">

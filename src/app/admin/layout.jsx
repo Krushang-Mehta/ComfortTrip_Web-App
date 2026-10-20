@@ -13,16 +13,15 @@ export default function AdminLayout({ children }) {
   const router = useRouter();
   const { data: session, status } = useSession();
 
-  const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // If on login page, render children directly without admin shell
+  // If on login redirect page, render children directly without admin shell
   const isLoginPage = pathname === "/admin/login";
 
   // Auth Protection Check
   useEffect(() => {
     if (status === "unauthenticated" && !isLoginPage) {
-      router.replace(`/admin/login?callbackUrl=${encodeURIComponent(pathname)}`);
+      router.replace(`/Login?callbackUrl=${encodeURIComponent(pathname)}`);
     }
   }, [status, isLoginPage, pathname, router]);
 
@@ -33,12 +32,12 @@ export default function AdminLayout({ children }) {
   // Loading Session State
   if (status === "loading") {
     return (
-      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center gap-3 text-white">
+      <div className="min-h-screen bg-[#FAF8FD] flex flex-col items-center justify-center gap-3 text-purple-900">
         <div className="w-12 h-12 rounded-2xl bg-purple-600 flex items-center justify-center shadow-lg shadow-purple-600/30 animate-pulse">
           <Compass className="w-6 h-6 text-white" />
         </div>
-        <p className="text-xs font-semibold text-slate-400 flex items-center gap-2">
-          <Loader2 className="w-4 h-4 animate-spin text-purple-400" />
+        <p className="text-xs font-semibold text-slate-500 flex items-center gap-2">
+          <Loader2 className="w-4 h-4 animate-spin text-purple-600" />
           <span>Verifying administrative clearance...</span>
         </p>
       </div>
@@ -51,26 +50,26 @@ export default function AdminLayout({ children }) {
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-4 text-center">
-        <div className="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-500 mb-4">
-          <ShieldAlert className="w-7 h-7" />
+      <div className="min-h-screen bg-[#FAF8FD] flex flex-col items-center justify-center p-4 text-center">
+        <div className="w-16 h-16 rounded-3xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-500 mb-4 shadow-sm">
+          <ShieldAlert className="w-8 h-8" />
         </div>
-        <h2 className="text-xl font-bold text-white mb-1">Administrative Privileges Required</h2>
-        <p className="text-xs text-slate-400 max-w-sm mb-6">
-          Your active session does not possess the permissions necessary to access the Comfort~Trip Admin Console.
+        <h2 className="text-xl font-bold text-slate-900 mb-1">Administrative Privileges Required</h2>
+        <p className="text-xs text-slate-500 max-w-sm mb-6">
+          Your active session does not possess the credentials necessary to access the Comfort~Trip Admin Terminal.
         </p>
         <div className="flex gap-3">
           <Link
             href="/"
-            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl transition"
+            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition"
           >
             Storefront
           </Link>
           <Link
-            href="/admin/login"
-            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold rounded-xl transition"
+            href="/Login?callbackUrl=/admin"
+            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl shadow-md shadow-purple-600/25 transition"
           >
-            Admin Sign In
+            Sign In with Admin Account
           </Link>
         </div>
       </div>
@@ -78,22 +77,16 @@ export default function AdminLayout({ children }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
-      {/* Responsive Admin Sidebar */}
+    <div className="min-h-screen bg-[#FAF8FD] flex">
+      {/* Permanent Full-Width Desktop Sidebar */}
       <AdminSidebar
         user={session.user}
-        collapsed={collapsed}
-        setCollapsed={setCollapsed}
         mobileOpen={mobileOpen}
         setMobileOpen={setMobileOpen}
       />
 
       {/* Main Content Area */}
-      <div
-        className={`flex-1 flex flex-col transition-all duration-300 ease-in-out min-w-0 ${
-          collapsed ? "md:ml-20" : "md:ml-64"
-        }`}
-      >
+      <div className="flex-1 flex flex-col min-w-0 md:ml-64 transition-all duration-200">
         <AdminHeader user={session.user} setMobileOpen={setMobileOpen} />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto min-w-0">

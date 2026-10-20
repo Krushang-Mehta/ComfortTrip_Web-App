@@ -66,9 +66,9 @@ export default withAuth(
           return !!token;
         }
 
-        // Admin area
+        // Admin area: allow through to middleware to handle redirect to /admin/login?callbackUrl=...
         if (pathname.startsWith('/admin')) {
-          return !!token && (token.role === 'admin' || token.role === 'super-admin');
+          return true;
         }
 
         return true;

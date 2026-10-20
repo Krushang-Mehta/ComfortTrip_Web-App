@@ -29,6 +29,11 @@ const Header = () => {
   const isAdmin = session?.user?.role === "admin" || session?.user?.role === "super-admin";
   const user = session?.user;
 
+  // Suppress public consumer header on administrative routes
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
+
   return (
     <header className="bg-white/95 backdrop-blur-md sticky top-0 z-50 shadow-sm border-b border-slate-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex justify-between items-center">

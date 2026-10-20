@@ -14,6 +14,7 @@ import {
   Coins,
   MessageSquare,
 } from "lucide-react";
+import { TableSkeleton } from "@/components/admin/AdminSkeleton";
 
 export default function AdminReviewsDesk() {
   const [reviews, setReviews] = useState([]);
@@ -202,10 +203,7 @@ export default function AdminReviewsDesk() {
       {/* Reviews Table / Grid */}
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-20 text-slate-400">
-            <Loader2 className="w-8 h-8 animate-spin text-purple-600 mb-2" />
-            <p className="text-xs font-semibold">Loading customer reviews...</p>
-          </div>
+          <TableSkeleton rows={5} />
         ) : reviews.length === 0 ? (
           <div className="text-center py-20 text-slate-400">
             <MessageSquare className="w-10 h-10 mx-auto mb-2 text-slate-300" />

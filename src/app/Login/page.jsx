@@ -64,8 +64,27 @@ function LoginForm() {
         );
         setLoading(false);
       } else {
-        router.push(callbackUrl);
-        router.refresh();
+        try {
+          const meRes = await fetch("/api/auth/me", {
+            credentials: "include",
+            cache: "no-store",
+          });
+          const meData = await meRes.json();
+          const role = meData?.user?.role;
+          if (role === "admin" || role === "super-admin") {
+            const dest =
+              callbackUrl && callbackUrl !== "/" && callbackUrl.startsWith("/admin")
+                ? callbackUrl
+                : "/admin";
+            window.location.href = dest;
+            return;
+          }
+        } catch (roleErr) {
+          console.warn("[Post-login Role Check Warning]", roleErr);
+        }
+
+        const safeCallback = callbackUrl.startsWith("/admin") ? "/" : callbackUrl;
+        window.location.href = safeCallback;
       }
     } catch (err) {
       setError("An unexpected authentication error occurred. Please try again.");

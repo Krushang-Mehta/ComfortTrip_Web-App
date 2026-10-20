@@ -73,6 +73,10 @@ export const updateBookingStatusSchema = z.object({
     .trim()
     .max(500, 'Notes cannot exceed 500 characters')
     .optional(),
+  totalEstimatedAmount: z
+    .number()
+    .positive('Amount must be positive')
+    .optional(),
 });
 
 export const assignDriverSchema = z.object({
