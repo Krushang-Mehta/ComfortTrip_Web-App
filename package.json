@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test": "node --import ./tests/resolve-alias.mjs --test tests/*.test.js"
+    "test": "node --import ./tests/resolve-alias.mjs --test tests/*.test.js",
+    "seed:admin": "node --env-file=.env.local scripts/seedAdmin.js",
+    "seed:cars": "node --env-file=.env.local scripts/seedCars.js"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
