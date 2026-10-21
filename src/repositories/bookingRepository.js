@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Booking from '@/models/Booking';
 import Counter from '@/models/Counter';
 
@@ -30,29 +31,52 @@ export async function createBooking(bookingData) {
 }
 
 /**
- * Find booking by MongoDB ObjectId
+ * Find booking by MongoDB ObjectId or sequential Booking ID (e.g. CT-2026-001)
  * @param {string} id
  * @returns {Promise<Object|null>}
  */
 export async function findBookingById(id) {
   if (!id) return null;
-  return await Booking.findById(id)
+  const strId = String(id).trim();
+
+  if (mongoose.isValidObjectId(strId)) {
+    const doc = await Booking.findById(strId)
+      .populate('user', 'name email phone avatarUrl')
+      .populate('car', 'brand model category pricePerKm pricePerDay images features')
+      .lean();
+    if (doc) return doc;
+  }
+
+  // Fallback to sequential bookingId (e.g. CT-2026-001) without throwing CastError
+  return await Booking.findOne({ bookingId: strId })
     .populate('user', 'name email phone avatarUrl')
     .populate('car', 'brand model category pricePerKm pricePerDay images features')
     .lean();
 }
 
 /**
- * Find booking by human-readable sequential ID (e.g. CT-2026-001)
+ * Find booking by human-readable sequential ID (e.g. CT-2026-001) or ObjectId
  * @param {string} bookingId
  * @returns {Promise<Object|null>}
  */
 export async function findBookingByBookingId(bookingId) {
   if (!bookingId) return null;
-  return await Booking.findOne({ bookingId: bookingId.trim() })
+  const strId = String(bookingId).trim();
+
+  const bySequential = await Booking.findOne({ bookingId: strId })
     .populate('user', 'name email phone avatarUrl')
-    .populate('car', 'brand model category pricePerKm pricePerDay images')
+    .populate('car', 'brand model category pricePerKm pricePerDay images features')
     .lean();
+  if (bySequential) return bySequential;
+
+  if (mongoose.isValidObjectId(strId)) {
+    return await Booking.findById(strId)
+      .populate('user', 'name email phone avatarUrl')
+      .populate('car', 'brand model category pricePerKm pricePerDay images features')
+      .lean();
+  }
+
+  return null;
 }
 
 /**
@@ -90,10 +114,13 @@ export async function updateBookingStatus(id, status, adminNotes, totalEstimated
     update.totalEstimatedAmount = totalEstimatedAmount;
   }
 
-  return await Booking.findByIdAndUpdate(
-    id,
+  const strId = String(id).trim();
+  const filter = mongoose.isValidObjectId(strId) ? { _id: strId } : { bookingId: strId };
+
+  return await Booking.findOneAndUpdate(
+    filter,
     { $set: update },
-    { new: true }
+    { returnDocument: 'after', new: true }
   )
     .populate('user', 'name email phone')
     .populate('car', 'brand model category')
@@ -111,15 +138,18 @@ export async function updateBookingStatus(id, status, adminNotes, totalEstimated
  * @returns {Promise<Object|null>}
  */
 export async function assignDriverToBooking(id, driverInfo) {
-  return await Booking.findByIdAndUpdate(
-    id,
+  const strId = String(id).trim();
+  const filter = mongoose.isValidObjectId(strId) ? { _id: strId } : { bookingId: strId };
+
+  return await Booking.findOneAndUpdate(
+    filter,
     {
       $set: {
         assignedDriver: driverInfo,
         status: 'Driver-Assigned',
       },
     },
-    { new: true }
+    { returnDocument: 'after', new: true }
   )
     .populate('user', 'name email phone')
     .populate('car', 'brand model category')

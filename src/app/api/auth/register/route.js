@@ -4,6 +4,7 @@ import { registerUserService } from '@/services/authService';
 import { sendEmail } from '@/lib/smtp/transporter';
 import { welcomeEmailTemplate } from '@/lib/smtp/emailTemplates';
 import { formatErrorResponse } from '@/lib/utils/formatApiError';
+import { resolveBaseUrl } from '@/lib/utils/url';
 
 export async function POST(request) {
   try {
@@ -16,11 +17,12 @@ export async function POST(request) {
     const emailHtml = welcomeEmailTemplate({
       name: newUser.name,
       email: newUser.email,
+      siteUrl: resolveBaseUrl(request),
     });
 
     sendEmail({
       to: newUser.email,
-      subject: 'Welcome to Comfort Trip Car Rentals! 🚗 (100 Bonus Points Inside)',
+      subject: 'Welcome to Comfort Trip Car Rentals! (100 Bonus Points Inside)',
       html: emailHtml,
     }).catch((err) => {
       console.error('[Async Welcome Email Error]', err);

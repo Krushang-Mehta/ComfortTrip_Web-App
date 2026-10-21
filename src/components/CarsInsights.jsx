@@ -20,7 +20,7 @@ const fallbackCars = [
     transmission: "Manual",
     fuelType: "CNG / Petrol",
     pricePerKm: 12,
-    imgUrl: "/car-01.png",
+    imgUrl: "/01_Dzire_Ai.png",
   },
   {
     brand: "Maruti Suzuki",
@@ -30,7 +30,7 @@ const fallbackCars = [
     transmission: "Auto",
     fuelType: "Petrol Hybrid",
     pricePerKm: 15,
-    imgUrl: "/car-02.png",
+    imgUrl: "/01_Ertiga_Ai.png",
   },
   {
     brand: "Toyota",
@@ -40,7 +40,7 @@ const fallbackCars = [
     transmission: "Auto",
     fuelType: "Diesel",
     pricePerKm: 19,
-    imgUrl: "/car-03.png",
+    imgUrl: "/01_Innova-Crysta_Ai.png",
   },
   {
     brand: "Toyota",
@@ -50,7 +50,7 @@ const fallbackCars = [
     transmission: "Auto",
     fuelType: "Diesel",
     pricePerKm: 28,
-    imgUrl: "/car-04.png",
+    imgUrl: "/01_Innova_Ai.png",
   },
   {
     brand: "Force Motors",
@@ -60,7 +60,7 @@ const fallbackCars = [
     transmission: "Manual",
     fuelType: "Diesel",
     pricePerKm: 26,
-    imgUrl: "/car-05.png",
+    imgUrl: "/01-force-traveller.png",
   },
 ];
 
@@ -95,7 +95,7 @@ export default function CarsInsights({ isForm = false, showHeader = true }) {
             <Sparkles className="w-3.5 h-3.5 text-purple-600" />
             Verified Saurashtra Fleet
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-3 tracking-tight font-serif sm:font-sans">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-3 tracking-tight">
             Our Premium Rental Fleet & Transparent Rates
           </h2>
           <p className="mt-2 text-sm text-slate-500">
@@ -118,7 +118,7 @@ export default function CarsInsights({ isForm = false, showHeader = true }) {
               {/* Vehicle Image Container with Floating Glassmorphic Category Badge */}
               <div className="relative w-full h-48 rounded-2xl overflow-hidden bg-slate-50 flex items-center justify-center p-4 border border-slate-100/80">
                 <Image
-                  src={car.imgUrl || "/car-01.png"}
+                  src={car.imgUrl || "/01-car.png"}
                   alt={carName}
                   width={420}
                   height={240}
@@ -134,7 +134,7 @@ export default function CarsInsights({ isForm = false, showHeader = true }) {
               <div className="pt-4 pb-2 px-1 flex-1 flex flex-col justify-between">
                 <div>
                   <div className="flex items-start justify-between gap-2">
-                    <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight font-serif sm:font-sans leading-tight">
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight leading-tight">
                       {carName}
                     </h3>
                     <div className="text-right shrink-0">

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { connectToDatabase } from '@/lib/db/mongodb';
 import User from '@/models/User';
-import { logActivity } from '@/services/auditService';
+import { logActivity } from '@/lib/utils/activityLogger';
 
 export async function POST(request) {
   try {

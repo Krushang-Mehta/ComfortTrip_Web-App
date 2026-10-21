@@ -4,7 +4,8 @@ import { connectToDatabase } from '@/lib/db/mongodb';
 import User from '@/models/User';
 import { sendEmail } from '@/lib/smtp/transporter';
 import { passwordResetEmailTemplate } from '@/lib/smtp/emailTemplates';
-import { logActivity } from '@/services/auditService';
+import { logActivity } from '@/lib/utils/activityLogger';
+import { resolveBaseUrl } from '@/lib/utils/url';
 
 export async function POST(request) {
   try {
@@ -38,10 +39,8 @@ export async function POST(request) {
     user.resetPasswordExpiry = expiryDate;
     await user.save();
 
-    // Determine site origin from request or env
-    const host = request.headers.get('host') || 'localhost:3000';
-    const protocol = request.headers.get('x-forwarded-proto') || (host.startsWith('localhost') ? 'http' : 'https');
-    const origin = process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`;
+    // Determine site origin dynamically via multi-tier resolution
+    const origin = resolveBaseUrl(request);
     const resetUrl = `${origin}/reset-password?token=${resetToken}&email=${encodeURIComponent(user.email)}`;
 
     // Dispatch email

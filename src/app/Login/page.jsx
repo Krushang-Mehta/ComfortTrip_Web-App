@@ -22,7 +22,7 @@ function LoginForm() {
   const registered = searchParams.get("registered");
   const urlError = searchParams.get("error");
 
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [formData, setFormData] = useState({ email: "", password: "", rememberMe: true });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -33,8 +33,11 @@ function LoginForm() {
   );
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
     if (error) setError("");
   };
 
@@ -49,6 +52,7 @@ function LoginForm() {
         redirect: false,
         email: formData.email,
         password: formData.password,
+        rememberMe: formData.rememberMe ? "true" : "false",
         callbackUrl,
       });
 
@@ -199,6 +203,23 @@ function LoginForm() {
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
+          </div>
+
+          {/* Remember Me for 30 Days Checkbox */}
+          <div className="flex items-center justify-between pt-1">
+            <label className="flex items-center gap-2 cursor-pointer select-none group">
+              <input
+                type="checkbox"
+                name="rememberMe"
+                id="rememberMe"
+                checked={formData.rememberMe}
+                onChange={handleChange}
+                className="w-4 h-4 rounded text-third-color focus:ring-third-color/40 border-slate-300 accent-purple-600 transition cursor-pointer"
+              />
+              <span className="text-xs font-medium text-slate-600 group-hover:text-slate-900 transition-colors">
+                Remember me for 30 days
+              </span>
+            </label>
           </div>
 
           <button

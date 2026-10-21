@@ -26,6 +26,11 @@ export default withAuth(
         unauthorizedUrl.searchParams.set('error', 'AccessDeniedAdminOnly');
         return NextResponse.redirect(unauthorizedUrl);
       }
+
+      // Strict Super Admin Edge Route Guard
+      if (pathname.startsWith('/admin/admins') && role !== 'super-admin') {
+        return NextResponse.redirect(new URL('/admin', req.url));
+      }
     }
 
     // 2. Redirect authenticated users away from Login and Register pages

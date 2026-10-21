@@ -24,6 +24,7 @@ import AuthModal from "@/components/common/AuthModal";
 import CustomDatePicker from "@/components/common/CustomDatePicker";
 import TimeslotPicker from "@/components/common/TimeslotPicker";
 import CustomDropdown from "@/components/common/CustomDropdown";
+import { useFormDraft } from "@/hooks/useFormDraft";
 
 const tripTypes = [
   { id: "Outstation-Round", label: "Round Trip", icon: Compass, desc: "Pilgrimage & Multi-day tours" },
@@ -53,26 +54,32 @@ const destinationSuggestions = [
   "Ahmedabad SG Highway",
 ];
 
+const initialBookingForm = {
+  tripType: "Outstation-Round",
+  pickupAddress: "",
+  destinationAddress: "",
+  pickupDate: "",
+  pickupTime: "09:00",
+  returnDate: "",
+  returnTime: "18:00",
+  passengers: 4,
+  carId: "",
+  customerNotes: "",
+  redeemPoints: false,
+};
+
 export default function BookingsWizard() {
   const { data: session, status } = useSession();
   const [currentStep, setCurrentStep] = useState(1);
   const [dismissedAuthModal, setDismissedAuthModal] = useState(false);
   const showAuthModal = status === "unauthenticated" && !dismissedAuthModal;
 
-  // Form State
-  const [formData, setFormData] = useState({
-    tripType: "Outstation-Round",
-    pickupAddress: "",
-    destinationAddress: "",
-    pickupDate: "",
-    pickupTime: "09:00",
-    returnDate: "",
-    returnTime: "18:00",
-    passengers: 4,
-    carId: "",
-    customerNotes: "",
-    redeemPoints: false,
-  });
+  // Form State with 30-min Draft Resilience
+  const { formData, setFormData, isRestored, clearDraft } = useFormDraft(
+    "booking_wizard",
+    initialBookingForm,
+    { ttlMinutes: 30 }
+  );
 
   // Fleet & Pricing State
   const [cars, setCars] = useState([]);
@@ -102,7 +109,7 @@ export default function BookingsWizard() {
       }
     }
     loadCars();
-  }, []);
+  }, [setFormData]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -286,6 +293,7 @@ export default function BookingsWizard() {
       }
 
       setCreatedBooking(data.booking);
+      clearDraft();
       setCurrentStep(4);
     } catch (err) {
       setError(err.message || "An unexpected error occurred while placing your booking.");
@@ -312,6 +320,19 @@ export default function BookingsWizard() {
           <p className="text-xs text-second-color mt-0.5">
             Transparent per-km billing • Verified Saurashtra Chauffeurs • 24x7 Dispatch Support
           </p>
+
+          {isRestored && !createdBooking && (
+            <div className="mt-3 inline-flex items-center gap-2 bg-purple-100/70 border border-purple-200 text-purple-900 text-xs px-3 py-1 rounded-full animate-in fade-in">
+              <span>Restored your unsaved booking draft</span>
+              <button
+                type="button"
+                onClick={clearDraft}
+                className="underline hover:text-purple-700 font-semibold cursor-pointer"
+              >
+                Clear draft
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Wizard Compact Step Indicator */}

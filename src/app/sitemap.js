@@ -1,8 +1,10 @@
+import { resolveBaseUrl } from '@/lib/utils/url';
+
 /**
  * Next.js Dynamic XML Sitemap Generator
  */
 export default function sitemap() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const baseUrl = resolveBaseUrl();
   const currentDate = new Date().toISOString();
 
   return [

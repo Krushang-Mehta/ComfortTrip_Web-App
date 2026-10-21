@@ -31,7 +31,13 @@ export default function CustomDropdown({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const selectedOption = options.find((opt) => opt.value === value);
+  const matchesValue = (optVal, currentVal) => {
+    if (optVal === currentVal) return true;
+    if (optVal == null || currentVal == null) return false;
+    return String(optVal).trim().toLowerCase() === String(currentVal).trim().toLowerCase();
+  };
+
+  const selectedOption = options.find((opt) => matchesValue(opt.value, value));
 
   return (
     <div className="relative w-full" ref={dropdownRef}>
@@ -85,7 +91,7 @@ export default function CustomDropdown({
             }}
           >
             {options.map((option) => {
-              const isSelected = option.value === value;
+              const isSelected = matchesValue(option.value, value);
               const OptionIcon = option.icon;
 
               return (
@@ -97,10 +103,10 @@ export default function CustomDropdown({
                     onChange(option.value);
                     setIsOpen(false);
                   }}
-                  className={`px-3.5 py-2.5 text-xs sm:text-sm flex items-center justify-between cursor-pointer transition ${
+                  className={`px-3.5 py-2.5 text-xs sm:text-sm flex items-center justify-between cursor-pointer transition border-l-4 ${
                     isSelected
-                      ? "bg-purple-50/90 text-purple-900 font-bold border-l-4 border-purple-600"
-                      : "text-gray-700 hover:bg-purple-50/50 hover:text-purple-700"
+                      ? "bg-purple-50/90 text-purple-900 font-bold border-purple-600"
+                      : "border-transparent text-gray-700 hover:bg-purple-50/60 hover:text-purple-700 hover:border-purple-400"
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
@@ -114,7 +120,7 @@ export default function CustomDropdown({
                       </div>
                     )}
                     <div className="truncate">
-                      <p className="font-semibold text-gray-900 leading-tight">
+                      <p className={`font-semibold leading-tight ${isSelected ? "text-purple-900" : "text-gray-900"}`}>
                         {option.label}
                       </p>
                       {option.subtitle && (

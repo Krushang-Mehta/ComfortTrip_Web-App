@@ -7,6 +7,7 @@ import { creditRewardPoints } from '@/repositories/userRepository';
 import { sendEmail } from '@/lib/smtp/transporter';
 import { bookingConfirmationEmailTemplate } from '@/lib/smtp/emailTemplates';
 import { formatErrorResponse } from '@/lib/utils/formatApiError';
+import { resolveBaseUrl } from '@/lib/utils/url';
 
 export async function GET(request) {
   try {
@@ -87,6 +88,7 @@ export async function POST(request) {
         name: session.user.name,
         email: session.user.email,
       },
+      siteUrl: resolveBaseUrl(request),
     });
 
     sendEmail({

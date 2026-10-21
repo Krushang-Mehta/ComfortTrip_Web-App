@@ -146,7 +146,7 @@ export default function AdminUsersDirectory() {
       <div className="bg-white p-5 rounded-3xl border border-purple-100/70 shadow-sm space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h1 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2 font-serif sm:font-sans">
+            <h1 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
               <Users className="w-5 h-5 text-purple-600" />
               <span>Registered User Directory</span>
             </h1>

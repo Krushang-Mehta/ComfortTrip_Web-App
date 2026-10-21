@@ -20,6 +20,10 @@ import {
   X,
   Phone,
   FileText,
+  Sparkles,
+  TrendingUp,
+  TrendingDown,
+  Gift,
 } from "lucide-react";
 
 export default function ProfilePage() {
@@ -105,9 +109,9 @@ export default function ProfilePage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          bookingId: selectedBookingForReview._id || selectedBookingForReview.bookingId,
-          rating: Number(reviewRating),
-          comment: reviewComment,
+          bookingId: selectedBookingForReview.bookingId || selectedBookingForReview._id,
+          overallRating: Number(reviewRating),
+          comments: reviewComment,
         }),
       });
 
@@ -131,6 +135,60 @@ export default function ProfilePage() {
       setSubmittingReview(false);
     }
   };
+
+  // Dynamic Reward Points Ledger Calculation
+  const pointsLedger = React.useMemo(() => {
+    const list = [
+      {
+        id: "signup_bonus",
+        date: session?.user?.createdAt || "2026-10-01",
+        title: "Welcome Bonus",
+        description: "Welcome credit for joining Comfort~Trip",
+        points: 100,
+        type: "credit",
+      },
+    ];
+
+    bookings.forEach((b) => {
+      // 1 pt per ₹100 of completed booking
+      if (b.status === "Completed") {
+        const earned = Math.max(1, Math.floor((b.totalEstimatedAmount || 0) / 100));
+        list.push({
+          id: `ride_${b._id}`,
+          date: b.pickupDateTime || b.createdAt,
+          title: `Ride Completion Reward (#${b.bookingId})`,
+          description: `₹${(b.totalEstimatedAmount || 0).toLocaleString()} fare completed`,
+          points: earned,
+          type: "credit",
+        });
+      }
+      // Points redeemed
+      if (b.redeemedPoints && b.redeemedPoints > 0) {
+        list.push({
+          id: `redeemed_${b._id}`,
+          date: b.createdAt,
+          title: `Discount Redeemed (#${b.bookingId})`,
+          description: `Fare reduction coupon discount applied`,
+          points: -b.redeemedPoints,
+          type: "debit",
+        });
+      }
+    });
+
+    return list.sort((a, b) => new Date(b.date) - new Date(a.date));
+  }, [bookings, session]);
+
+  const totalEarnedPoints = pointsLedger
+    .filter((p) => p.points > 0)
+    .reduce((sum, p) => sum + p.points, 0);
+
+  const totalRedeemedPoints = Math.abs(
+    pointsLedger
+      .filter((p) => p.points < 0)
+      .reduce((sum, p) => sum + p.points, 0)
+  );
+
+  const calculatedBalance = Math.max(0, totalEarnedPoints - totalRedeemedPoints);
 
   const filteredBookings = bookings.filter((b) => {
     if (activeTab === "active") {
@@ -207,14 +265,85 @@ export default function ProfilePage() {
               </p>
               <div className="flex items-baseline gap-1 mt-0.5">
                 <span className="text-2xl font-extrabold text-third-color">
-                  {user?.rewardPoints ?? 0}
+                  {calculatedBalance}
                 </span>
-                <span className="text-xs font-bold text-slate-400">pts (₹{user?.rewardPoints ?? 0})</span>
+                <span className="text-xs font-bold text-slate-400">pts (₹{calculatedBalance})</span>
               </div>
               <p className="text-[10px] text-slate-400 mt-0.5">
-                Earn +5 pts on reviewing each completed trip
+                Earn 1 pt / ₹100 ride fare • 1 pt = ₹1 discount
               </p>
             </div>
+          </div>
+        </div>
+
+        {/* Dynamic Reward Points Activity Ledger */}
+        <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200/80">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-100">
+            <div>
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-purple-600" />
+                <h2 className="text-xl font-bold text-main-color">Points Ledger & Transactions</h2>
+              </div>
+              <p className="text-xs text-second-color mt-0.5">
+                Transparent audit trail of your earned bonuses and booking redemptions
+              </p>
+            </div>
+
+            <div className="flex items-center gap-4 text-xs font-semibold">
+              <div className="flex items-center gap-1.5 text-emerald-700 bg-emerald-50 px-3 py-1 rounded-xl border border-emerald-200">
+                <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Earned: +{totalEarnedPoints} pts</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-rose-700 bg-rose-50 px-3 py-1 rounded-xl border border-rose-200">
+                <TrendingDown className="w-3.5 h-3.5 text-rose-600" />
+                <span>Redeemed: -{totalRedeemedPoints} pts</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="divide-y divide-slate-100 max-h-64 overflow-y-auto custom-scrollbar pr-1">
+            {pointsLedger.map((item) => (
+              <div key={item.id} className="py-3 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-xs ${
+                      item.type === "credit"
+                        ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
+                        : "bg-rose-50 text-rose-600 border border-rose-200"
+                    }`}
+                  >
+                    {item.type === "credit" ? (
+                      <Gift className="w-4 h-4" />
+                    ) : (
+                      <Coins className="w-4 h-4" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-slate-900">{item.title}</p>
+                    <p className="text-[11px] text-slate-500">{item.description}</p>
+                  </div>
+                </div>
+
+                <div className="text-right shrink-0">
+                  <span
+                    className={`text-xs font-extrabold px-2.5 py-1 rounded-full border ${
+                      item.type === "credit"
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                        : "bg-rose-50 text-rose-700 border-rose-200"
+                    }`}
+                  >
+                    {item.points > 0 ? `+${item.points}` : item.points} pts
+                  </span>
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    {new Date(item.date).toLocaleDateString("en-IN", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 

@@ -38,6 +38,7 @@ if (typeof Credentials === 'function') {
       credentials: {
         email: { label: 'Email', type: 'email', placeholder: 'user@example.com' },
         password: { label: 'Password', type: 'password' },
+        rememberMe: { label: 'Remember Me', type: 'text' },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -50,7 +51,9 @@ if (typeof Credentials === 'function') {
           password: credentials.password,
         });
 
-        return buildSessionUser(user);
+        const sessionUser = buildSessionUser(user);
+        sessionUser.rememberMe = credentials.rememberMe === 'true' || credentials.rememberMe === true;
+        return sessionUser;
       },
     })
   );
@@ -119,6 +122,7 @@ export const authOptions = {
         token.phone = user.phone || '';
         token.avatarUrl = user.avatarUrl || '';
         token.rewardPoints = user.rewardPoints ?? 100;
+        token.rememberMe = user.rememberMe ?? true;
       }
 
       // Handle client-side session updates (e.g. points earned, name change)

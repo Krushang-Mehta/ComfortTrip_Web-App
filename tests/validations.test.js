@@ -170,4 +170,13 @@ test('Review Validations: createReviewSchema enforces 1-5 star ratings', () => {
     comments: 'Excellent and smooth ride from Rajkot to Dwarka!',
   });
   assert.equal(valid.overallRating, 5);
+
+  // Valid with rating/comment fallbacks
+  const fallbackValid = createReviewSchema.parse({
+    bookingId: 'CT-2026-001',
+    rating: 4,
+    comment: 'Great service!',
+  });
+  assert.equal(fallbackValid.overallRating, 4);
+  assert.equal(fallbackValid.comments, 'Great service!');
 });

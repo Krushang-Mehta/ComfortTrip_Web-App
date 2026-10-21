@@ -17,6 +17,8 @@ import {
   Fuel,
   Gauge,
   IndianRupee,
+  UploadCloud,
+  Image as ImageIcon,
 } from "lucide-react";
 import CustomDropdown from "@/components/common/CustomDropdown";
 import { CardGridSkeleton } from "@/components/admin/AdminSkeleton";
@@ -76,7 +78,48 @@ export default function AdminFleetManager() {
     features: "Air Conditioning, Power Steering, Bluetooth, GPS Tracking",
     status: "available",
     imageUrl: "",
+    cloudinaryPublicId: "",
   });
+
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+
+  const handleImageFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError("Image size must be less than 5MB");
+      return;
+    }
+
+    try {
+      setUploadingImage(true);
+      setUploadError("");
+      const body = new FormData();
+      body.append("file", file);
+      body.append("folder", "comfort-trip/cars");
+
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body,
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Upload failed");
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        imageUrl: data.url,
+        cloudinaryPublicId: data.publicId,
+      }));
+    } catch (err) {
+      setUploadError(err.message || "Failed to upload image to Cloudinary");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   const fetchCars = useCallback(async () => {
     try {
@@ -127,6 +170,7 @@ export default function AdminFleetManager() {
 
   function openCreateModal() {
     setEditingCar(null);
+    setUploadError("");
     setFormData({
       brand: "",
       model: "",
@@ -139,12 +183,14 @@ export default function AdminFleetManager() {
       features: "Air Conditioning, Power Steering, Bluetooth, GPS Tracking",
       status: "available",
       imageUrl: "",
+      cloudinaryPublicId: "",
     });
     setCarModalOpen(true);
   }
 
   function openEditModal(car) {
     setEditingCar(car);
+    setUploadError("");
     setFormData({
       brand: car.brand || "",
       model: car.model || "",
@@ -157,6 +203,7 @@ export default function AdminFleetManager() {
       features: Array.isArray(car.features) ? car.features.join(", ") : "",
       status: car.status || "available",
       imageUrl: car.images?.[0]?.url || "",
+      cloudinaryPublicId: car.images?.[0]?.publicId || "",
     });
     setCarModalOpen(true);
   }
@@ -181,7 +228,12 @@ export default function AdminFleetManager() {
       };
 
       if (formData.imageUrl.trim()) {
-        payload.images = [{ url: formData.imageUrl.trim(), publicId: "manual_url" }];
+        payload.images = [
+          {
+            url: formData.imageUrl.trim(),
+            publicId: formData.cloudinaryPublicId || "manual_url",
+          },
+        ];
       }
 
       let res;
@@ -554,15 +606,115 @@ export default function AdminFleetManager() {
                 </div>
               </div>
 
+              {/* Fleet Image: Cloudinary Upload + Live Preview */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Image URL</label>
-                <input
-                  type="url"
-                  value={formData.imageUrl}
-                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                  placeholder="https://images.unsplash.com/... or Cloudinary URL"
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-purple-600 focus:bg-white transition"
-                />
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
+                  <span>Vehicle Photograph (Cloudinary Upload)</span>
+                  {formData.imageUrl && (
+                    <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                      Image Linked
+                    </span>
+                  )}
+                </label>
+
+                {/* Upload Box / Dropzone */}
+                <div className="border-2 border-dashed border-slate-200 hover:border-purple-400 rounded-2xl p-4 bg-slate-50/70 text-center transition-all">
+                  {formData.imageUrl ? (
+                    <div className="flex items-center gap-4 text-left">
+                      <div className="relative w-20 h-14 rounded-xl overflow-hidden border border-slate-200 bg-slate-100 shrink-0">
+                        <Image
+                          src={formData.imageUrl}
+                          alt="Vehicle preview"
+                          fill
+                          className="object-cover"
+                          unoptimized
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-slate-800 truncate">
+                          {formData.brand || "Vehicle"} {formData.model}
+                        </p>
+                        <p className="text-[11px] text-slate-400 truncate max-w-xs">
+                          {formData.imageUrl}
+                        </p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <label className="text-[11px] text-purple-600 hover:text-purple-700 font-semibold cursor-pointer underline">
+                            Replace Photo
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageFileUpload}
+                              className="hidden"
+                              disabled={uploadingImage}
+                            />
+                          </label>
+                          <span className="text-slate-300">•</span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setFormData((prev) => ({
+                                ...prev,
+                                imageUrl: "",
+                                cloudinaryPublicId: "",
+                              }))
+                            }
+                            className="text-[11px] text-rose-600 hover:text-rose-700 font-semibold cursor-pointer"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <label className="cursor-pointer block py-2">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageFileUpload}
+                        className="hidden"
+                        disabled={uploadingImage}
+                      />
+                      <div className="w-10 h-10 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center mx-auto mb-2 border border-purple-200">
+                        {uploadingImage ? (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          <UploadCloud className="w-5 h-5" />
+                        )}
+                      </div>
+                      <p className="text-xs font-semibold text-slate-700">
+                        {uploadingImage
+                          ? "Uploading asset to Cloudinary..."
+                          : "Click to upload car photo"}
+                      </p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">
+                        PNG, JPG, WEBP, or AVIF up to 5MB (Stored in comfort-trip/cars)
+                      </p>
+                    </label>
+                  )}
+
+                  {uploadError && (
+                    <p className="text-[11px] text-rose-600 font-medium mt-2">
+                      {uploadError}
+                    </p>
+                  )}
+                </div>
+
+                {/* Optional Manual URL Fallback Input */}
+                <div className="mt-2">
+                  <input
+                    type="url"
+                    value={formData.imageUrl}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        imageUrl: e.target.value,
+                        cloudinaryPublicId: "manual_url",
+                      })
+                    }
+                    placeholder="Or paste external image URL (e.g. Unsplash or direct CDN link)"
+                    className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-[11px] text-slate-800 placeholder-slate-400 focus:outline-none focus:border-purple-600 focus:bg-white transition"
+                  />
+                </div>
               </div>
 
               <div>

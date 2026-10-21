@@ -8,6 +8,10 @@ module.exports = {
   ],
   theme: {
   	extend: {
+      fontFamily: {
+        sans: ['var(--font-geist-sans)', 'system-ui', 'sans-serif'],
+        mono: ['var(--font-geist-mono)', 'monospace'],
+      },
   		colors: {
         "main-color":"#212832",
         "second-color":"#393d46",

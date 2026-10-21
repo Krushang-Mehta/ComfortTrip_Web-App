@@ -13,6 +13,9 @@ import {
   bookingConfirmationEmailTemplate,
   driverAssignedEmailTemplate,
   tripCompletedEmailTemplate,
+  bookingRequestUserEmailTemplate,
+  bookingInquiryAdminAlertEmailTemplate,
+  bookingStatusUpdateEmailTemplate,
 } from '@/lib/smtp/emailTemplates';
 import { buildSessionUser } from '@/services/authService';
 import { getTransporter } from '@/lib/smtp/transporter';
@@ -121,12 +124,39 @@ test('Email Templates: Driver assigned and trip completed templates contain esse
   assert.match(driverHtml, /GJ-03-ER-4521/);
 
   const completedHtml = tripCompletedEmailTemplate({
-    booking: { bookingId: 'CT-2026-002' },
+    booking: { bookingId: 'CT-2026-002', totalEstimatedAmount: 6200 },
     user: { name: 'Kishan' },
     rewardPointsEarned: 5,
   });
   assert.match(completedHtml, /\+5 reward points/);
   assert.match(completedHtml, /CT-2026-002/);
+  assert.match(completedHtml, /Download Tax Invoice \(PDF\)/);
+  assert.match(completedHtml, /\/api\/bookings\/CT-2026-002\/invoice/);
+
+  // Booking inquiry acknowledgement
+  const userInquiryHtml = bookingRequestUserEmailTemplate({
+    booking: { bookingId: 'CT-2026-003', pickupAddress: 'Rajkot Airport', destinationAddress: 'Somnath', pickupDateTime: new Date() },
+    user: { name: 'Rahul' },
+  });
+  assert.match(userInquiryHtml, /Booking Request Received/);
+  assert.match(userInquiryHtml, /CT-2026-003/);
+
+  // Admin alert
+  const adminAlertHtml = bookingInquiryAdminAlertEmailTemplate({
+    booking: { bookingId: 'CT-2026-003', pickupAddress: 'Rajkot Airport', destinationAddress: 'Somnath', pickupDateTime: new Date() },
+    user: { name: 'Rahul', email: 'rahul@example.com' },
+  });
+  assert.match(adminAlertHtml, /New Booking Inquiry Alert/);
+  assert.match(adminAlertHtml, /CT-2026-003/);
+
+  // Status update
+  const statusHtml = bookingStatusUpdateEmailTemplate({
+    booking: { bookingId: 'CT-2026-003', totalEstimatedAmount: 4500, pickupDateTime: new Date() },
+    user: { name: 'Rahul' },
+    newStatus: 'Confirmed',
+  });
+  assert.match(statusHtml, /Trip Confirmed/);
+  assert.match(statusHtml, /4,500/);
 });
 
 test('Auth Service: buildSessionUser sanitizes passwordHash and sets defaults', () => {
@@ -181,5 +211,35 @@ test('Error Sanitizer: formatErrorResponse transforms Zod errors into friendly h
   const dupResponse = formatErrorResponse(mockDuplicateError);
   assert.equal(dupResponse.status, 409);
   assert.match(dupResponse.body.message, /email already exists/);
+});
+
+test('Domain Resolver: resolveBaseUrl dynamically resolves origin across headers and environments', async () => {
+  const { resolveBaseUrl } = await import('@/lib/utils/url');
+
+  // Test 1: From Next.js Request object with forwarded headers
+  const mockReqWithForwarded = {
+    headers: {
+      get: (header) => {
+        if (header === 'x-forwarded-host') return 'preview-branch.vercel.app';
+        if (header === 'x-forwarded-proto') return 'https';
+        return null;
+      },
+    },
+  };
+  assert.equal(resolveBaseUrl(mockReqWithForwarded), 'https://preview-branch.vercel.app');
+
+  // Test 2: From plain headers object
+  const plainHeadersReq = {
+    headers: {
+      'x-forwarded-host': 'thecomforttrip.com',
+      'x-forwarded-proto': 'https',
+    },
+  };
+  assert.equal(resolveBaseUrl(plainHeadersReq), 'https://thecomforttrip.com');
+
+  // Test 3: Fallback when no request passed
+  const fallback = resolveBaseUrl(null);
+  assert.ok(fallback.startsWith('http://') || fallback.startsWith('https://'));
+  assert.ok(!fallback.endsWith('/'), 'Base URL must not have trailing slash');
 });
 

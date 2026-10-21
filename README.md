@@ -1,86 +1,169 @@
-# The Comfort Trip — Car Rental Platform
+# The Comfort Trip — Enterprise Car Rental & Chauffeur Platform
 
-A modern, SEO-optimized car rental & cab/tempo booking platform for Comfort Trip (Rajkot), built with Next.js. Includes a public marketing site, a customer booking dashboard, and an admin panel for managing cars, content, bookings, and (in the future) drivers.
+[![Node.js CI](https://img.shields.io/badge/Node.js-v18%2B-green.svg)](https://nodejs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16%20(App%20Router)-black.svg)](https://nextjs.org/)
+[![MongoDB](https://img.shields.io/badge/Database-MongoDB%20Atlas-forestgreen.svg)](https://www.mongodb.com/atlas)
+[![Cloudinary](https://img.shields.io/badge/Media-Cloudinary%20v2-blue.svg)](https://cloudinary.com/)
+[![License](https://img.shields.io/badge/License-Proprietary-purple.svg)]()
 
-> **Status:** Pre-development / architecture & planning phase. See [`ARCHITECTURE.md`](./ARCHITECTURE.md) for the full system design and open decisions awaiting client sign-off.
+A high-performance, enterprise-grade car rental and chauffeur dispatch platform designed for **Comfort Trip Car Rentals (Rajkot, Gujarat)**. Featuring end-to-end customer booking flows, real-time telemetry analytics, multi-tier RBAC administrative governance, Cloudinary asset pipelines, and automated transactional email dispatch.
+
+---
+
+## Architecture Overview
+
+```
+                      +---------------------------------------+
+                      |       Next.js 16 Edge Proxy           |
+                      |   (proxy.js & NextAuth Middleware)    |
+                      +-------------------+-------------------+
+                                          |
+                +-------------------------+-------------------------+
+                |                                                   |
+      [Consumer Web App]                                    [Admin Control Desk]
+  +-------------------------+                           +-------------------------+
+  | - Instant Booking Flow  |                           | - Real-time Telemetry   |
+  | - 30-min Draft Memory   |                           | - 6-Mo Revenue Analytics|
+  | - Points Wallet Ledger  |                           | - Category Demand Donut |
+  | - PDF Invoices & Reviews|                           | - Super Admin Governance|
+  +------------+------------+                           +------------+------------+
+               |                                                     |
+               +--------------------------+--------------------------+
+                                          |
+                        +-----------------+-----------------+
+                        |       REST API Route Handlers     |
+                        |      (Controllers & Services)     |
+                        +--------+--------+--------+--------+
+                                 |        |        |
+             +-------------------+        |        +-------------------+
+             |                            |                            |
+  +----------v----------+      +----------v----------+      +----------v----------+
+  |    MongoDB Atlas    |      |  Cloudinary Storage |      |  SMTP Mail Service  |
+  | (Mongoose Schemas & |      | (comfort-trip/cars) |      | (Dynamic Domain URI |
+  | Live Aggregations)  |      | Streamed Uploads    |      | Invoices & Alerts)  |
+  +---------------------+      +---------------------+      +---------------------+
+```
+
+---
+
+## Key Enterprise Capabilities (Phase 7.9)
+
+### 1. Multi-Tier RBAC & Super-Admin Provisioning (`/admin/admins`)
+- **Role Hierarchy**: Strict separation of capabilities across `user`, `admin` (Operations), and `super-admin` (Executive Governance).
+- **Cryptographic Security Checkpoint**: Creation of new administrative profiles requires mandatory super-admin password verification (`bcrypt.compare`) against the calling administrator's hashed credentials.
+- **Edge Route Protection**: Direct URL tampering to `/admin/admins` is blocked at the proxy edge and redirected to `/admin`.
+
+### 2. Live Dynamic Telemetry & Revenue Analytics
+- **Continuous 6-Month Aggregation**: The Admin Overview charts live gross revenue across the trailing 6 calendar months using native MongoDB `$match` and `$group` aggregations.
+- **Real-Time Fleet Demand Donut**: Dynamic SVG donut visualizer renders the live booking distribution across categories (Sedan, SUV, Tempo Traveller, Luxury).
+- **Chauffeur Pulse & Radar**: Real-time status cards displaying available, on-trip, and verified driver allocations with 3D elevated card depth.
+
+### 3. Cloudinary Fleet Media Pipeline
+- **Streaming Image Ingestion**: Direct multipart form-data upload via `POST /api/admin/upload` converting buffers directly to Cloudinary (`comfort-trip/cars`).
+- **Live Preview & Fallbacks**: Admin fleet manager features drag-and-drop file upload, live thumbnail previews, replacement controls, and external URL fallback support.
+- **Strict Validation**: Enforces 5MB file size limits and validates MIME types (`image/jpeg`, `image/png`, `image/webp`, `image/avif`).
+
+### 4. 30-Minute Form State Resilience (`useFormDraft`)
+- **Fault-Tolerant Input Recovery**: Client booking wizards and admin fleet modals automatically persist drafts in `localStorage` with a 30-minute time-to-live (TTL).
+- **Smart Cleanup**: Drafts are automatically purged on explicit form cancellation, `(X)` close buttons, or successful submission.
+
+### 5. Dynamic Reward Points & Wallet Ledger
+- **Automatic Point Minting**: Base 100 points welcome bonus upon registration, 1 point per ₹100 of completed ride fare, and +5 points per verified ride review.
+- **Interactive Customer Ledger**: Customer profile (`/profile`) displays real-time point balances alongside an itemized transaction ledger.
+
+### 6. Session Persistence & Security
+- **30-Day "Remember Me"**: Extensible NextAuth session lifetime configured via dynamic JWT token cookies.
+- **Glassmorphic Logout Modal**: Dual confirmation modal prevents accidental sign-out across both consumer header and admin sidebar navigation.
 
 ---
 
 ## Tech Stack
 
-| Layer | Choice |
+| Layer | Technology |
 |---|---|
-| Framework | Next.js 16 (App Router, Server Components by default) |
-| Language | JavaScript (`.jsx`) |
-| Styling | Tailwind CSS, using only the CSS variables defined in `globals.css` (no ad hoc colors) |
-| Database | MongoDB Atlas + Mongoose |
-| Validation | Zod (client + server) |
-| Auth | Auth.js v5 — Credentials + Google OAuth, single login form for users & admins, RBAC |
-| Media | Cloudinary (car images, profile photos, driver photos) |
-| Email | SMTP (verification, password reset, booking status, reminders) |
-| Hosting | Vercel |
-| Scheduled jobs | Vercel Cron (booking reminders) |
+| **Framework** | Next.js 16 (App Router, React 19) |
+| **Language** | Modern JavaScript (ES Modules, JSX) |
+| **Styling** | Tailwind CSS + Custom 3D Floating Glassmorphism System |
+| **Database** | MongoDB Atlas with Mongoose ODM |
+| **Authentication** | NextAuth.js (Credentials Provider + Google OAuth) |
+| **Media Hosting** | Cloudinary v2 SDK (`comfort-trip/cars`) |
+| **Email Dispatch** | Nodemailer with Dynamic Domain Routing (`thecomforttrip.com`) |
+| **Testing** | Node.js Test Runner & Custom Integration Suites |
 
-## Project Principles
+---
 
-- **Server Components by default.** `"use client"` is only added on interactive leaf components — never on `app/` route files.
-- **Single auth pipeline** for users and admins; role determines access, not a separate login route.
-- **Authorization is enforced in a Data Access Layer**, not in `middleware.js` alone (see `ARCHITECTURE.md` §2 for why).
-- **All styling uses `globals.css` theme variables** — no hardcoded hex colors in components.
-- **Naming conventions, file structure, and coding standards** are documented in [`DEVELOPMENT_GUIDELINES.md`](./DEVELOPMENT_GUIDELINES.md).
-- **AI coding agents working in this repo** (Claude Code, Cursor, Copilot Workspace, etc.) must follow [`AGENTS.md`](./AGENTS.md) — it is the binding contract for how automated changes are made, reviewed, and approved.
+## Core API Endpoints
 
-## Getting Started
+| Method | Endpoint | Access | Purpose |
+|---|---|---|---|
+| `GET` | `/api/cars` | Public / Admin | Fetch fleet catalog with category & status filters |
+| `POST` | `/api/cars` | Admin | Create a new fleet vehicle entry |
+| `PATCH` | `/api/cars/[id]` | Admin | Update vehicle specifications or pricing |
+| `POST` | `/api/admin/upload` | Admin | Upload vehicle asset directly to Cloudinary |
+| `GET` | `/api/admin/stats` | Admin | Live telemetry, 6-mo revenue, and demand aggregations |
+| `GET` | `/api/admin/staff` | Super-Admin | List all administrative and super-admin accounts |
+| `POST` | `/api/admin/staff` | Super-Admin | Provision new admin with password challenge verification |
+| `GET` | `/api/bookings` | User / Admin | Retrieve bookings (scoped by role) |
+| `POST` | `/api/bookings` | User | Place new cab/tempo booking request |
+| `PATCH` | `/api/bookings/[id]` | Admin | Update trip status, driver assignment, or billing |
+| `POST` | `/api/reviews` | User | Post trip review and claim reward points |
 
-> Setup instructions will be finalized once the folder structure and Phase 1 scope are approved. Placeholder for reference:
+---
 
-```bash
-# clone
-git clone <repo-url>
-cd comfort-trip-car-rental
+## Environment Configuration
 
-# install
-npm install
+Create a `.env.local` file in the root directory:
 
-# configure environment
-cp .env.example .env.local
-# fill in: MONGODB_URI, AUTH_SECRET, GOOGLE_CLIENT_ID/SECRET,
-# CLOUDINARY_*, SMTP_*, CRON_SECRET
+```env
+# MongoDB Atlas Database URI
+MONGODB_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/comfort-trip-data
 
-# run dev server
-npm run dev
+# NextAuth Authentication Secrets
+AUTH_SECRET=your_32_character_hex_secret
+NEXTAUTH_SECRET=your_32_character_hex_secret
+NEXTAUTH_URL=http://localhost:3000
+
+# Google OAuth Credentials (Optional for social login)
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+# Cloudinary Media Configuration
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
+# SMTP Transactional Email Configuration
+SMTP_HOST=sandbox.smtp.mailtrap.io
+SMTP_PORT=2525
+SMTP_USER=your_smtp_user
+SMTP_PASS=your_smtp_password
+SMTP_FROM=support@thecomforttrip.com
+ADMIN_NOTIFICATION_EMAIL=admin@thecomforttrip.com
+
+# Production Domain Path for Dynamic Email Links
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
-## Environment Variables Configuration
+---
 
-To run the application, configure your `.env.local` using the following groupings:
+## Local Development & Testing
 
-### 1. Hard Requirements (Must be set to boot the app)
-- `MONGODB_URI`: MongoDB connection string (Atlas or Local).
-- `AUTH_SECRET`: Secret key used for signing session tokens and encryption. Generate using `openssl rand -hex 32` or `npx auth secret`.
+```bash
+# 1. Install dependencies
+npm install
 
-### 2. Deferred Requirements (Needed only for specific features)
-- **Google OAuth Login**:
-  - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`: Client keys from Google Cloud Console. Optional if using only credentials/email sign-up.
-- **Image Uploads (Admin Cars CRUD / Profile Avatars)**:
-  - `CLOUDINARY_CLOUD_NAME` / `CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET`: Cloudinary service credentials.
-- **Transactional Emails (Verification & Booking Reminders)**:
-  - `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM`: SMTP credentials (e.g., Resend). If missing, emails are logged to the console (Mail Sandbox) in development.
-- **Scheduled Notifications Cron Endpoint**:
-  - `CRON_SECRET`: Secret header key protecting `/api/cron/booking-reminders` from unauthorized public invocation.
-- **SEO Optimization**:
-  - `NEXT_PUBLIC_SITE_URL`: Base canonical site URL (e.g., `https://comforttrip.com` or default `http://localhost:3000`).
+# 2. Run local development server
+npm run dev
 
-## Documentation Index
+# 3. Execute automated test suite
+npm test
 
-- [`ARCHITECTURE.md`](./ARCHITECTURE.md) — system architecture, data model, auth/authorization design, future scope
-- [`AGENTS.md`](./AGENTS.md) — rules for AI coding agents contributing to this repo
-- [`DEVELOPMENT_GUIDELINES.md`](./DEVELOPMENT_GUIDELINES.md) — naming conventions, folder structure, git workflow, testing standards, security checklist
+# 4. Verify code quality and styling standards
+npm run lint
+```
 
-## Development Process
-
-This project is built **phase by phase, with explicit client approval before each phase begins**. No folder structure, schema, or module is implemented without prior discussion and sign-off. See `AGENTS.md` §1 for how this constraint is enforced for AI-assisted development specifically.
+---
 
 ## License
 
-Proprietary — all rights reserved by the client (Comfort Trip Car Rental).
+Proprietary — All rights reserved by **Comfort Trip Car Rentals (Rajkot, Gujarat)**.

@@ -201,7 +201,7 @@ function generateInvoicePdf(booking) {
       .text(`${booking.tripType} Chauffeur Driven Rental`, 50, y)
       .text(booking.car?.category || 'Standard', 280, y)
       .text(`Base`, 380, y)
-      .text(`₹${totalAmount.toLocaleString('en-IN')}`, 480, y);
+      .text(`Rs. ${totalAmount.toLocaleString('en-IN')}`, 470, y);
 
     y += 20;
     doc.moveTo(40, y).lineTo(555, y).strokeColor('#e2e8f0').stroke();
@@ -211,7 +211,7 @@ function generateInvoicePdf(booking) {
       .text('Goods & Services Tax (GST)', 50, y)
       .text('0%', 280, y)
       .text('Exempt', 380, y)
-      .text('₹0', 480, y);
+      .text('Rs. 0', 470, y);
 
     y += 24;
     doc
@@ -225,7 +225,7 @@ function generateInvoicePdf(booking) {
       .fontSize(11)
       .fillColor(primaryColor)
       .text('Total Invoice Amount:', 50, y + 8, { bold: true })
-      .text(`₹${totalAmount.toLocaleString('en-IN')}`, 470, y + 8, { bold: true });
+      .text(`Rs. ${totalAmount.toLocaleString('en-IN')}`, 460, y + 8, { bold: true });
 
     // Footer & Policies
     doc

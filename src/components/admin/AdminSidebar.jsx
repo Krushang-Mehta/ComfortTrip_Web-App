@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
@@ -15,8 +15,10 @@ import {
   LogOut,
   X,
   Shield,
+  ShieldCheck,
   Sparkles,
 } from "lucide-react";
+import LogoutModal from "@/components/common/LogoutModal";
 
 const navigationItems = [
   {
@@ -50,6 +52,13 @@ const navigationItems = [
     badge: null,
   },
   {
+    name: "Staff & Admins",
+    href: "/admin/admins",
+    icon: ShieldCheck,
+    badge: "Super",
+    superAdminOnly: true,
+  },
+  {
     name: "CMS & Reviews",
     href: "/admin/reviews",
     icon: Star,
@@ -59,6 +68,12 @@ const navigationItems = [
 
 export default function AdminSidebar({ user, mobileOpen, setMobileOpen }) {
   const pathname = usePathname();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const isSuperAdmin = user?.role === "super-admin";
+
+  const visibleItems = navigationItems.filter(
+    (item) => !item.superAdminOnly || isSuperAdmin
+  );
 
   function isItemActive(href) {
     if (href === "/admin") {
@@ -90,7 +105,7 @@ export default function AdminSidebar({ user, mobileOpen, setMobileOpen }) {
             className="flex flex-col min-w-0 group"
             onClick={() => setMobileOpen(false)}
           >
-            <span className="font-extrabold text-2xl text-purple-700 tracking-tight font-serif sm:font-sans group-hover:text-purple-800 transition">
+            <span className="font-extrabold text-2xl text-purple-700 tracking-tight group-hover:text-purple-800 transition">
               Comfort~Trip
             </span>
             <span className="text-[11px] font-semibold text-slate-400 tracking-wide mt-0.5">
@@ -111,7 +126,7 @@ export default function AdminSidebar({ user, mobileOpen, setMobileOpen }) {
 
         {/* Navigation Menu Links */}
         <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-          {navigationItems.map((item) => {
+          {visibleItems.map((item) => {
             const Icon = item.icon;
             const active = isItemActive(item.href);
 
@@ -183,7 +198,7 @@ export default function AdminSidebar({ user, mobileOpen, setMobileOpen }) {
           {/* Sign Out Button */}
           <button
             type="button"
-            onClick={() => signOut({ callbackUrl: "/Login" })}
+            onClick={() => setShowLogoutModal(true)}
             className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition cursor-pointer"
           >
             <LogOut className="w-4 h-4" />
@@ -191,6 +206,12 @@ export default function AdminSidebar({ user, mobileOpen, setMobileOpen }) {
           </button>
         </div>
       </aside>
+
+      <LogoutModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={() => signOut({ callbackUrl: "/Login" })}
+      />
     </>
   );
 }

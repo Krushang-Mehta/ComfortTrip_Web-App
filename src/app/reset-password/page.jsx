@@ -97,7 +97,7 @@ function ResetPasswordForm() {
         <div className="text-center mb-8">
           <Link
             href="/"
-            className="inline-block text-purple-700 font-extrabold text-3xl tracking-tight transform transition-transform hover:scale-105 font-serif sm:font-sans"
+            className="inline-block text-purple-700 font-extrabold text-3xl tracking-tight transform transition-transform hover:scale-105"
           >
             Comfort~Trip
           </Link>

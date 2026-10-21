@@ -5,6 +5,7 @@ import {
 } from '@/lib/validations/bookingValidation';
 import { findCarById } from '@/repositories/carRepository';
 import { findDriverById, updateDriverStatus } from '@/repositories/driverRepository';
+import { findUserById } from '@/repositories/userRepository';
 import {
   createBooking,
   findBookingById,
@@ -15,6 +16,15 @@ import {
   findAllBookingsAdmin,
 } from '@/repositories/bookingRepository';
 import { logActivity } from '@/lib/utils/activityLogger';
+import { sendEmail } from '@/lib/smtp/transporter';
+import {
+  bookingRequestUserEmailTemplate,
+  bookingInquiryAdminAlertEmailTemplate,
+  bookingStatusUpdateEmailTemplate,
+  driverAssignedEmailTemplate,
+  tripCompletedEmailTemplate,
+} from '@/lib/smtp/emailTemplates';
+import { resolveBaseUrl } from '@/lib/utils/url';
 
 /**
  * Asserts user is authenticated
@@ -102,6 +112,34 @@ export async function createBookingService(rawData, session) {
     details: { car: `${car.brand} ${car.model}`, route: `${validated.pickupAddress} -> ${validated.destinationAddress}` },
   }).catch(() => {});
 
+  // Dispatch transactional emails (non-blocking)
+  const carSnapshot = {
+    ...booking,
+    carModel: `${car.brand} ${car.model}`,
+    carCategory: car.category,
+  };
+
+  if (session.user.email) {
+    sendEmail({
+      to: session.user.email,
+      subject: `Booking Request Received - ${booking.bookingId} | Comfort Trip Car Rentals`,
+      html: bookingRequestUserEmailTemplate({
+        booking: carSnapshot,
+        user: session.user,
+      }),
+    }).catch((err) => console.error('[SMTP Customer Acknowledgement Error]', err));
+  }
+
+  const adminAlertEmail = process.env.ADMIN_ALERT_EMAIL || process.env.SMTP_USER || 'admin@comforttrip.in';
+  sendEmail({
+    to: adminAlertEmail,
+    subject: `🚨 New Booking Request Alert - ${booking.bookingId} (${car.brand} ${car.model})`,
+    html: bookingInquiryAdminAlertEmailTemplate({
+      booking: carSnapshot,
+      user: session.user,
+    }),
+  }).catch((err) => console.error('[SMTP Admin Alert Error]', err));
+
   return booking;
 }
 
@@ -176,6 +214,61 @@ export async function updateBookingStatusService(id, rawData, session) {
     description: `Booking ${updatedBooking.bookingId} status changed to ${validated.status}`,
   }).catch(() => {});
 
+  // Dispatch asynchronous transactional emails based on status change
+  (async () => {
+    try {
+      const customer = updatedBooking.user?._id
+        ? updatedBooking.user
+        : await findUserById(updatedBooking.user);
+
+      if (customer?.email) {
+        const bookingSnapshot = {
+          ...updatedBooking,
+          carModel: updatedBooking.car ? `${updatedBooking.car.brand} ${updatedBooking.car.model}` : 'Comfort Trip Vehicle',
+          carCategory: updatedBooking.car?.category || 'Standard',
+        };
+
+        if (validated.status === 'Confirmed') {
+          await sendEmail({
+            to: customer.email,
+            subject: `Trip Confirmed! - ${updatedBooking.bookingId} | Comfort Trip Car Rentals`,
+            html: bookingStatusUpdateEmailTemplate({
+              booking: bookingSnapshot,
+              user: customer,
+              newStatus: 'Confirmed',
+              adminNotes: validated.adminNotes,
+            }),
+          });
+        } else if (validated.status === 'Completed') {
+          const siteUrl = resolveBaseUrl();
+          await sendEmail({
+            to: customer.email,
+            subject: `Trip Completed & Tax Invoice Ready - ${updatedBooking.bookingId} | Comfort Trip Car Rentals`,
+            html: tripCompletedEmailTemplate({
+              booking: bookingSnapshot,
+              user: customer,
+              rewardPointsEarned: 5,
+              invoiceUrl: `${siteUrl}/api/bookings/${updatedBooking.bookingId}/invoice`,
+            }),
+          });
+        } else if (validated.status === 'Cancelled') {
+          await sendEmail({
+            to: customer.email,
+            subject: `Booking Cancelled - ${updatedBooking.bookingId} | Comfort Trip Car Rentals`,
+            html: bookingStatusUpdateEmailTemplate({
+              booking: bookingSnapshot,
+              user: customer,
+              newStatus: 'Cancelled',
+              adminNotes: validated.adminNotes,
+            }),
+          });
+        }
+      }
+    } catch (err) {
+      console.error('[SMTP Status Notification Error]', err);
+    }
+  })();
+
   return updatedBooking;
 }
 
@@ -220,6 +313,31 @@ export async function assignDriverService(bookingId, rawData, session) {
     targetId: updatedBooking.bookingId,
     description: `Assigned chauffeur ${driver.fullName} to booking ${updatedBooking.bookingId}`,
   }).catch(() => {});
+
+  // Dispatch Chauffeur assigned email notification to customer
+  (async () => {
+    try {
+      const customer = updatedBooking.user?._id
+        ? updatedBooking.user
+        : await findUserById(updatedBooking.user);
+
+      if (customer?.email) {
+        await sendEmail({
+          to: customer.email,
+          subject: `Your Chauffeur is Assigned! - ${updatedBooking.bookingId} | Comfort Trip Car Rentals`,
+          html: driverAssignedEmailTemplate({
+            booking: {
+              ...updatedBooking,
+              carModel: updatedBooking.car ? `${updatedBooking.car.brand} ${updatedBooking.car.model}` : 'Comfort Trip Vehicle',
+            },
+            driver,
+          }),
+        });
+      }
+    } catch (err) {
+      console.error('[SMTP Driver Assigned Notification Error]', err);
+    }
+  })();
 
   return updatedBooking;
 }
